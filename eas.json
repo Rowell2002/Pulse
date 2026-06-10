@@ -1,0 +1,43 @@
+{
+  "cli": {
+    "version": ">= 20.1.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBsp3AQ7hx_5C5EordUgv4Fi4gDFjXD0KI",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "pulse-f8eab.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pulse-f8eab",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pulse-f8eab.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1570776787",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBsp3AQ7hx_5C5EordUgv4Fi4gDFjXD0KI",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "pulse-f8eab.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pulse-f8eab",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pulse-f8eab.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1570776787",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626"
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

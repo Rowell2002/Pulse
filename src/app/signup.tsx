@@ -11,72 +11,79 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
 import { GlassCard } from '../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../config/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
-export default function AuthScreen() {
+export default function SignUpScreen() {
   const router = useRouter();
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
-  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const { signUp } = useAuth();
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isUsernameOrEmailFocused, setIsUsernameOrEmailFocused] = useState(false);
+  const [isNameFocused, setIsNameFocused] = useState(false);
+  const [isUsernameFocused, setIsUsernameFocused] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSignIn = async () => {
-    const input = usernameOrEmail.trim();
-    if (!input || !password) {
-      setErrorMsg('Please enter both username/email and password.');
+  const handleSignUp = async () => {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim().toLowerCase();
+
+    if (!trimmedName || !trimmedEmail || !trimmedUsername || !password) {
+      setErrorMsg('Please populate all input fields.');
       return;
     }
 
-    if (input.includes('@')) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(input)) {
-        setErrorMsg('Please enter a valid email address.');
-        return;
-      }
-    } else {
-      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-      if (!usernameRegex.test(input)) {
-        setErrorMsg('Username must be 3-20 characters (letters, numbers, and underscores only).');
-        return;
-      }
+    if (trimmedName.length < 2) {
+      setErrorMsg('Full name must be at least 2 characters.');
+      return;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(trimmedUsername)) {
+      setErrorMsg('Username must be 3-20 characters (letters, numbers, underscores).');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
     }
 
     if (password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters.');
+      setErrorMsg('Password must be at least 6 characters long.');
       return;
     }
 
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
-      await signIn(input, password);
-      // Auth Guard in _layout.tsx will handle the redirection automatically
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Incorrect email or password.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      // Check if username is already taken by another user
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', trimmedUsername), limit(1));
+      const querySnapshot = await getDocs(q);
 
-  const handleSocialSignIn = async (provider: 'google' | 'apple') => {
-    setErrorMsg(null);
-    setIsSubmitting(true);
-    try {
-      if (provider === 'google') {
-        await signInWithGoogle();
-      } else {
-        await signInWithApple();
+      if (!querySnapshot.empty) {
+        setErrorMsg('This username is already taken. Please choose another.');
+        setIsSubmitting(false);
+        return;
       }
+
+      await signUp(trimmedEmail, password, trimmedName, trimmedUsername);
+      // The Auth Guard redirect in _layout.tsx will navigate to /onboarding automatically
     } catch (err: any) {
-      setErrorMsg(err.message || 'Social sign in failed.');
+      setErrorMsg(err.message || 'Failed to create your account.');
     } finally {
       setIsSubmitting(false);
     }
@@ -110,19 +117,19 @@ export default function AuthScreen() {
           <GlassCard style={styles.card}>
             {/* Tab Selector */}
             <View style={styles.tabContainer}>
-              <TouchableOpacity activeOpacity={0.8} style={styles.activeTab}>
-                <Text style={styles.activeTabText}>Sign In</Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.8}
                 style={styles.inactiveTab}
-                onPress={() => router.push('/signup')}
+                onPress={() => router.push('/')}
               >
-                <Text style={styles.inactiveTabText}>Create Account</Text>
+                <Text style={styles.inactiveTabText}>Sign In</Text>
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={0.8} style={styles.activeTab}>
+                <Text style={styles.activeTabText}>Create Account</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Error Message */}
+            {/* Error Message Panel */}
             {errorMsg && (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{errorMsg}</Text>
@@ -132,40 +139,76 @@ export default function AuthScreen() {
             {/* Inputs */}
             <View style={styles.form}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>USERNAME OR EMAIL ADDRESS</Text>
+                <Text style={styles.label}>FULL NAME</Text>
                 <View
                   style={[
                     styles.inputWrapper,
-                    isUsernameOrEmailFocused && styles.inputFocused,
+                    isNameFocused && styles.inputFocused,
                   ]}
                 >
-                  {usernameOrEmail.includes('@') ? (
-                    <Mail size={18} color={COLORS.textMuted} style={styles.inputIcon} />
-                  ) : (
-                    <User size={18} color={COLORS.textMuted} style={styles.inputIcon} />
-                  )}
+                  <User size={18} color={COLORS.textMuted} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="username or athlete@pulse.com"
+                    placeholder="Alex Johnson"
                     placeholderTextColor="rgba(255,255,255,0.3)"
-                    keyboardType="default"
-                    autoCapitalize="none"
-                    value={usernameOrEmail}
-                    onChangeText={setUsernameOrEmail}
-                    onFocus={() => setIsUsernameOrEmailFocused(true)}
-                    onBlur={() => setIsUsernameOrEmailFocused(false)}
+                    value={name}
+                    onChangeText={setName}
+                    onFocus={() => setIsNameFocused(true)}
+                    onBlur={() => setIsNameFocused(false)}
                     editable={!isSubmitting}
                   />
                 </View>
               </View>
 
               <View style={styles.inputGroup}>
-                <View style={styles.labelRow}>
-                  <Text style={styles.label}>PASSWORD</Text>
-                  <TouchableOpacity activeOpacity={0.8}>
-                    <Text style={styles.forgotText}>Forgot?</Text>
-                  </TouchableOpacity>
+                <Text style={styles.label}>USERNAME</Text>
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    isUsernameFocused && styles.inputFocused,
+                  ]}
+                >
+                  <User size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="alex_johnson"
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    autoCapitalize="none"
+                    value={username}
+                    onChangeText={setUsername}
+                    onFocus={() => setIsUsernameFocused(true)}
+                    onBlur={() => setIsUsernameFocused(false)}
+                    editable={!isSubmitting}
+                  />
                 </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>EMAIL ADDRESS</Text>
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    isEmailFocused && styles.inputFocused,
+                  ]}
+                >
+                  <Mail size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="athlete@pulse.com"
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={() => setIsEmailFocused(true)}
+                    onBlur={() => setIsEmailFocused(false)}
+                    editable={!isSubmitting}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>PASSWORD</Text>
                 <View
                   style={[
                     styles.inputWrapper,
@@ -200,49 +243,21 @@ export default function AuthScreen() {
               <TouchableOpacity
                 activeOpacity={0.9}
                 style={[styles.button, isSubmitting && styles.disabledButton]}
-                onPress={handleSignIn}
+                onPress={handleSignUp}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <ActivityIndicator size="small" color="#000000" />
                 ) : (
-                  <Text style={styles.buttonText}>Sign In</Text>
+                  <Text style={styles.buttonText}>Get Started</Text>
                 )}
               </TouchableOpacity>
-            </View>
-
-            {/* Social Authentication */}
-            <View style={styles.socialSection}>
-              <View style={styles.dividerRow}>
-                <View style={styles.divider} />
-                <Text style={styles.socialText}>OR CONTINUE WITH</Text>
-                <View style={styles.divider} />
-              </View>
-
-              <View style={styles.socialButtons}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.socialButton}
-                  onPress={() => handleSocialSignIn('apple')}
-                  disabled={isSubmitting}
-                >
-                  <Text style={styles.socialButtonText}>Apple</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.socialButton}
-                  onPress={() => handleSocialSignIn('google')}
-                  disabled={isSubmitting}
-                >
-                  <Text style={styles.socialButtonText}>Google</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </GlassCard>
 
           {/* Footer Text */}
           <Text style={styles.footerText}>
-            By joining, you agree to our{' '}
+            By signing up, you agree to our{' '}
             <Text style={styles.footerLink}>Terms of Service</Text> and{' '}
             <Text style={styles.footerLink}>Privacy Policy</Text>.
           </Text>
@@ -347,16 +362,6 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     paddingLeft: 4,
   },
-  labelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  forgotText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.primary,
-  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -397,45 +402,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  socialSection: {
-    gap: 16,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  socialText: {
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 1,
-    color: COLORS.textMuted,
-    opacity: 0.4,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: COLORS.surfaceCard,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  socialButtonText: {
-    color: COLORS.textPrimary,
-    fontSize: 14,
-    fontWeight: '600',
   },
   footerText: {
     fontSize: 11,
