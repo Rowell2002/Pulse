@@ -1,6 +1,10 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getAuth } from 'firebase/auth';
+// @ts-ignore - getReactNativePersistence exists in the RN bundle but is not in the TS types
+import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // Firebase credentials read from environment variables.
 // Expo loads EXPO_PUBLIC_ variables automatically at runtime.
@@ -27,10 +31,20 @@ const isMockMode = false;
 try {
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
+    // On native platforms, use AsyncStorage for auth persistence.
+    // getAuth() assumes browser localStorage which doesn't exist on React Native,
+    // causing a native crash before any JS error handler can catch it.
+    if (Platform.OS !== 'web') {
+      auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+    } else {
+      auth = getAuth(app);
+    }
   } else {
     app = getApp();
+    auth = getAuth(app);
   }
-  auth = getAuth(app);
   db = getFirestore(app);
   console.log('[Firebase] Successfully initialized real database and authentication services.');
 } catch (error) {
