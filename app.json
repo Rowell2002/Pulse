@@ -8,11 +8,17 @@
     "scheme": "pulse",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts."
+      }
     },
     "android": {
       "package": "com.app.pulse",
       "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
