@@ -301,21 +301,6 @@ export default function DashboardScreen() {
             </GlassCard>
           </TouchableOpacity>
 
-          {/* Habit 3 — Nutrition */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => router.push('/workout/details')}
-          >
-            <GlassCard style={styles.habitCard}>
-              <View style={styles.habitIconWrapper}>
-                <Utensils size={18} color={colors.textMuted} />
-              </View>
-              <View style={styles.habitMeta}>
-                <Text style={styles.habitTitle}>Nutrition</Text>
-                <Text style={styles.habitStatusText}>Track now</Text>
-              </View>
-            </GlassCard>
-          </TouchableOpacity>
         </ScrollView>
       </View>
 
