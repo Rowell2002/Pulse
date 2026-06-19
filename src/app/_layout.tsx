@@ -10,9 +10,9 @@ import { SplashScreen } from '../components/SplashScreen';
 import { Alert } from 'react-native';
 
 // Global error handler to help diagnose remote crashes
-if (typeof global.ErrorUtils !== 'undefined') {
-  const defaultHandler = global.ErrorUtils.getGlobalHandler();
-  global.ErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
+if (typeof (global as any).ErrorUtils !== 'undefined') {
+  const defaultHandler = (global as any).ErrorUtils.getGlobalHandler();
+  (global as any).ErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
     console.error('[Global Error]', error);
     Alert.alert(
       'App Crash Caught',
@@ -89,35 +89,45 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <ChatProvider>{children}</ChatProvider>;
 }
 
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
+
+function ThemedAppStack() {
+  const { colors } = useTheme();
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.background },
+        animation: 'slide_from_right',
+      }}
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="signup" />
+      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="workout/details" />
+      <Stack.Screen name="workout/active" />
+      <Stack.Screen name="workout/summary" />
+      <Stack.Screen name="profile/edit" />
+      <Stack.Screen name="profile/settings" />
+      <Stack.Screen name="profile/client-stats" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="search-filters" />
+      <Stack.Screen name="chat/[id]" />
+      <Stack.Screen name="chat/group/[id]" />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   return (
-    <SafeAreaProvider style={{ backgroundColor: COLORS.background }}>
-      <StatusBar style="light" />
+    <SafeAreaProvider style={{ backgroundColor: '#000000' }}>
       <AuthProvider>
-        <AuthGuard>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: COLORS.background },
-              animation: 'slide_from_right',
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="signup" />
-            <Stack.Screen name="onboarding" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="workout/details" />
-            <Stack.Screen name="workout/active" />
-            <Stack.Screen name="workout/summary" />
-            <Stack.Screen name="profile/edit" />
-            <Stack.Screen name="profile/settings" />
-            <Stack.Screen name="profile/client-stats" />
-            <Stack.Screen name="notifications" />
-            <Stack.Screen name="search-filters" />
-            <Stack.Screen name="chat/[id]" />
-            <Stack.Screen name="chat/group/[id]" />
-          </Stack>
-        </AuthGuard>
+        <ThemeProvider>
+          <AuthGuard>
+            <ThemedAppStack />
+          </AuthGuard>
+        </ThemeProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -11,7 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import { Search, ChevronRight, ChevronLeft, Plus, Trash2, MessageSquare, Dumbbell, Award, User, Check } from 'lucide-react-native';
-import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../theme/themedStyles';
 import { GlassCard } from './GlassCard';
 import { EXERCISES, Exercise } from '../constants/exerciseDb';
 import { db } from '../config/firebase';
@@ -34,6 +35,8 @@ export const TrainerClients: React.FC = () => {
   const router = useRouter();
   const { user, userData } = useAuth();
   const { startChatWithUser } = useChat();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   const [search, setSearch] = useState('');
   const [clients, setClients] = useState<any[]>([]);
@@ -261,27 +264,27 @@ export const TrainerClients: React.FC = () => {
             onPress={() => setSelectedClient(null)}
             style={styles.backButton}
           >
-            <ChevronLeft size={20} color={COLORS.textPrimary} />
+            <ChevronLeft size={20} color={colors.textPrimary} />
             <Text style={styles.backButtonText}>Back to Clients</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Client profile bento card */}
-          <GlassCard style={styles.profileCard}>
+          <GlassCard style={styles.detailCard}>
             <View style={styles.profileHeader}>
               {selectedClient.avatar ? (
-                <Image source={{ uri: selectedClient.avatar }} style={styles.profileAvatar} />
+                <Image source={{ uri: selectedClient.avatar }} style={styles.detailAvatar} />
               ) : (
-                <View style={styles.profileAvatarPlaceholder}>
-                  <Text style={styles.placeholderInitial}>{selectedClient.name.charAt(0)}</Text>
+                <View style={styles.detailAvatarPlaceholder}>
+                  <Text style={styles.detailPlaceholderInitial}>{selectedClient.name.charAt(0)}</Text>
                 </View>
               )}
               <View style={styles.profileMeta}>
                 <Text style={styles.profileName}>{selectedClient.name}</Text>
                 <Text style={styles.profileUsername}>@{selectedClient.username}</Text>
                 <View style={styles.goalBadge}>
-                  <Award size={12} color={COLORS.primary} />
+                  <Award size={12} color={colors.primary} />
                   <Text style={styles.goalText}>
                     GOAL: {(selectedClient.selectedGoal || 'NOT SET').toUpperCase()}
                   </Text>
@@ -377,7 +380,7 @@ export const TrainerClients: React.FC = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Currently Assigned Exercises</Text>
             {loadingAssignments ? (
-              <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 16 }} />
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 16 }} />
             ) : assignedExercises.length === 0 ? (
               <GlassCard style={styles.emptyCard}>
                 <Text style={styles.emptyText}>No exercises currently assigned to this athlete.</Text>
@@ -388,7 +391,7 @@ export const TrainerClients: React.FC = () => {
                   <GlassCard key={asg.docId} style={styles.assignmentCard}>
                     <View style={styles.assignmentInfo}>
                       <View style={styles.exerciseIconWrapper}>
-                        <Dumbbell size={16} color={COLORS.primary} />
+                        <Dumbbell size={16} color={colors.primary} />
                       </View>
                       <View>
                         <Text style={styles.assignmentName}>{asg.name}</Text>
@@ -402,7 +405,7 @@ export const TrainerClients: React.FC = () => {
                       onPress={() => handleDeleteAssignment(asg.docId, asg.name)}
                       style={styles.deleteBtn}
                     >
-                      <Trash2 size={16} color={COLORS.error} />
+                      <Trash2 size={16} color={colors.error} />
                     </TouchableOpacity>
                   </GlassCard>
                 ))}
@@ -414,7 +417,7 @@ export const TrainerClients: React.FC = () => {
           <View style={[styles.section, { marginTop: 16 }]}>
             <Text style={styles.sectionTitle}>Completed Workouts History</Text>
             {loadingCompleted ? (
-              <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 16 }} />
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 16 }} />
             ) : completedWorkouts.length === 0 ? (
               <GlassCard style={styles.emptyCard}>
                 <Text style={styles.emptyText}>No workouts completed yet by this athlete.</Text>
@@ -424,8 +427,8 @@ export const TrainerClients: React.FC = () => {
                 {completedWorkouts.map((w) => (
                   <GlassCard key={w.id} style={styles.assignmentCard}>
                     <View style={styles.assignmentInfo}>
-                      <View style={[styles.exerciseIconWrapper, { backgroundColor: 'rgba(204, 255, 0, 0.05)', borderColor: 'rgba(204, 255, 0, 0.15)' }]}>
-                        <Check size={18} color={COLORS.primary} />
+                      <View style={[styles.exerciseIconWrapper, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.05)' : 'rgba(118, 158, 0, 0.05)', borderColor: isDark ? 'rgba(204, 255, 0, 0.15)' : 'rgba(118, 158, 0, 0.15)' }]}>
+                        <Check size={18} color={colors.primary} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.assignmentName}>{w.name}</Text>
@@ -451,11 +454,11 @@ export const TrainerClients: React.FC = () => {
       {/* Search clients input */}
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
-          <Search size={18} color={COLORS.textMuted} />
+          <Search size={18} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search clients by name..."
-            placeholderTextColor="rgba(255,255,255,0.3)"
+            placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
             value={search}
             onChangeText={setSearch}
           />
@@ -466,7 +469,7 @@ export const TrainerClients: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Client Directory</Text>
           {loading ? (
-            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 24 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 24 }} />
           ) : filteredClients.length === 0 ? (
             <GlassCard style={styles.emptyCard}>
               <Text style={styles.emptyText}>No registered clients found.</Text>
@@ -496,7 +499,7 @@ export const TrainerClients: React.FC = () => {
                         </Text>
                       )}
                     </View>
-                    <ChevronRight size={18} color={COLORS.textMuted} />
+                    <ChevronRight size={18} color={colors.textMuted} />
                   </GlassCard>
                 </TouchableOpacity>
               ))}
@@ -508,10 +511,10 @@ export const TrainerClients: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   searchBarWrapper: {
     paddingHorizontal: 20,
@@ -520,9 +523,9 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 48,
@@ -530,7 +533,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 14,
     height: '100%',
   },
@@ -545,7 +548,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   emptyCard: {
     padding: 24,
@@ -554,7 +557,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
   },
   clientsList: {
@@ -575,16 +578,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderInitial: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   clientContent: {
     flex: 1,
@@ -593,36 +596,42 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   clientUsername: {
     fontSize: 11,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   clientGoal: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    marginTop: 2,
+    fontSize: 12,
+    color: colors.textMuted,
   },
-
-  // Workspace styles
+  clientCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   workspaceHeader: {
     paddingHorizontal: 20,
     paddingTop: 16,
+    paddingBottom: 8,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    alignSelf: 'flex-start',
+    marginBottom: 8,
   },
   backButtonText: {
-    color: COLORS.textPrimary,
+    color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
-  profileCard: {
+
+  // Client Profile Detail View Styles
+  detailCard: {
     padding: 20,
     gap: 16,
   },
@@ -631,20 +640,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
-  profileAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  detailAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
   },
-  profileAvatarPlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1.5,
-    borderColor: COLORS.borderGlass,
+  detailAvatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderGlass,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  detailPlaceholderInitial: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.primary,
   },
   profileMeta: {
     flex: 1,
@@ -653,20 +667,20 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   profileUsername: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   goalBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(204, 255, 0, 0.1)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(118, 158, 0, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(204, 255, 0, 0.18)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.18)' : 'rgba(118, 158, 0, 0.18)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -676,24 +690,24 @@ const styles = StyleSheet.create({
   goalText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   profileBio: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 18,
   },
   messageBtn: {
     height: 44,
     borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
   },
   messageBtnText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -709,7 +723,7 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     letterSpacing: 1.5,
   },
   pickerWrapper: {
@@ -723,21 +737,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
   },
   pickerItemActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: 'rgba(204,255,0,0.1)',
+    borderColor: colors.primary,
+    backgroundColor: isDark ? 'rgba(204,255,0,0.1)' : 'rgba(118,158,0,0.1)',
   },
   pickerItemText: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: '600',
   },
   pickerItemTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   inputsRow: {
     flexDirection: 'row',
@@ -749,19 +763,19 @@ const styles = StyleSheet.create({
   },
   formInput: {
     height: 44,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
     borderRadius: 8,
     paddingHorizontal: 12,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 14,
     textAlign: 'center',
   },
   assignBtn: {
     height: 44,
     borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -769,7 +783,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   assignBtnText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -793,22 +807,22 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     justifyContent: 'center',
     alignItems: 'center',
   },
   assignmentName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   assignmentMeta: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   completedDateText: {
     fontSize: 10,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     marginTop: 2,
   },

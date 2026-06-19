@@ -11,7 +11,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { Search, Play, SlidersHorizontal, Dumbbell } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { PROGRAMS, Program } from '../../constants/exerciseDb';
@@ -25,6 +26,8 @@ const { width } = Dimensions.get('window');
 export default function WorkoutsScreen() {
   const router = useRouter();
   const { user, userData } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('For You');
 
@@ -118,11 +121,11 @@ export default function WorkoutsScreen() {
         {/* Search Bar */}
         <View style={styles.searchRow}>
           <View style={styles.searchWrapper}>
-            <Search size={18} color={COLORS.textMuted} style={styles.searchIcon} />
+            <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search training programs..."
-              placeholderTextColor="rgba(255,255,255,0.3)"
+              placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
               value={search}
               onChangeText={setSearch}
             />
@@ -132,7 +135,7 @@ export default function WorkoutsScreen() {
             onPress={() => router.push('/search-filters')}
             style={styles.filterButton}
           >
-            <SlidersHorizontal size={18} color={COLORS.textPrimary} />
+            <SlidersHorizontal size={18} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
@@ -185,7 +188,7 @@ export default function WorkoutsScreen() {
                     style={styles.programCardContent}
                   >
                     <View style={styles.exerciseIconWrapper}>
-                      <Dumbbell size={22} color={COLORS.primary} />
+                      <Dumbbell size={22} color={colors.primary} />
                     </View>
                     <View style={styles.programMeta}>
                       <Text style={styles.programTitle}>{asg.name}</Text>
@@ -204,7 +207,7 @@ export default function WorkoutsScreen() {
                     }
                     style={styles.playIconWrapper}
                   >
-                    <Play size={18} color={COLORS.primary} fill={COLORS.primary} />
+                    <Play size={18} color={colors.primary} fill={colors.primary} />
                   </TouchableOpacity>
                 </GlassCard>
               ))}
@@ -287,7 +290,7 @@ export default function WorkoutsScreen() {
                     onPress={() => handlePlayPress(program)}
                     style={styles.playIconWrapper}
                   >
-                    <Play size={18} color={COLORS.primary} fill={COLORS.primary} />
+                    <Play size={18} color={colors.primary} fill={colors.primary} />
                   </TouchableOpacity>
                 </GlassCard>
               ))}
@@ -323,10 +326,10 @@ export default function WorkoutsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 20,
@@ -342,9 +345,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 48,
@@ -354,16 +357,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 14,
     height: '100%',
   },
   filterButton: {
     width: 48,
     height: 48,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -376,21 +379,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
   },
   activeCategoryChip: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary,
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
   },
   categoryText: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: 13,
     fontWeight: '600',
   },
   activeCategoryText: {
-    color: '#000000',
+    color: colors.textAccent,
   },
   featuredWrapper: {
     height: 230,
@@ -398,7 +401,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
   },
   featuredImage: {
     width: '100%',
@@ -418,7 +421,7 @@ const styles = StyleSheet.create({
   },
   featuredTag: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -432,16 +435,16 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   featuredMeta: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     opacity: 0.8,
   },
   featuredButton: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
@@ -450,7 +453,7 @@ const styles = StyleSheet.create({
   featuredButtonText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#000000',
+    color: colors.textAccent,
   },
   section: {
     gap: 14,
@@ -463,12 +466,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   viewAllText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   programsList: {
     gap: 12,
@@ -497,22 +500,22 @@ const styles = StyleSheet.create({
   programTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   programWeek: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   progressTrack: {
     height: 4,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 2,
     width: '100%',
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   playIconWrapper: {
     width: 32,
@@ -522,17 +525,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
   },
   exerciseIconWrapper: {
     width: 64,
     height: 64,
     borderRadius: 8,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
   },
   goalsGrid: {
     flexDirection: 'row',
@@ -545,7 +548,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
   },
   goalImage: {
     width: '100%',
@@ -563,7 +566,7 @@ const styles = StyleSheet.create({
   goalText: {
     fontSize: 16,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     textAlign: 'center',
@@ -576,6 +579,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
 });

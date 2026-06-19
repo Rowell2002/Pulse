@@ -3,12 +3,14 @@ import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { TopAppBar } from '../../components/TopAppBar';
 import { BottomNavBar } from '../../components/BottomNavBar';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
       <TopAppBar />
       <View style={styles.content}>
         <Tabs
@@ -31,7 +33,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,

@@ -1,4 +1,4 @@
-export const COLORS = {
+export const DARK_COLORS = {
   // Brand Accents
   primary: '#CCFF00', // Electric Yellow
   secondary: '#79FF5B', // Athletic Vibrant Green
@@ -24,3 +24,33 @@ export const COLORS = {
   borderGlass: 'rgba(255, 255, 255, 0.1)',
   borderActive: 'rgba(204, 255, 0, 0.25)',
 };
+
+export const LIGHT_COLORS = {
+  // Brand Accents (Deepened for contrast on light background)
+  primary: '#769E00', // Deeper athletic lime/green
+  secondary: '#2E8B1A', // Deeper athletic vibrant green
+  tertiary: '#3A7D8C', // Deeper hydration blue
+  warning: '#C69400', // Deeper rest warning amber
+  error: '#BA1A1A', // Deeper error red
+  errorContainer: '#FFDAD6',
+
+  // Neutrals / Core Backings (Clean light theme)
+  background: '#F9FAF6', // Premium light off-white background
+  surface: '#FFFFFF', // Clean white surfaces for cards
+  surfaceCard: '#F0F2EA', // Light grey card backing
+  surfaceBright: '#E2E4DC', // Accent details / section headers
+
+  // Text Typography Colors (High contrast for light theme)
+  textPrimary: '#191C13', // Dark text headers
+  textSecondary: '#43493E', // Medium text body copy
+  textMuted: '#73796E', // Muted details
+  textAccent: '#FFFFFF', // Text used on primary (which is dark in light mode)
+
+  // Outlines / Borders
+  outline: '#73796E',
+  borderGlass: 'rgba(0, 0, 0, 0.08)',
+  borderActive: 'rgba(118, 158, 0, 0.35)',
+};
+
+// Fallback export to prevent breaking unrefactored components
+export const COLORS = DARK_COLORS;

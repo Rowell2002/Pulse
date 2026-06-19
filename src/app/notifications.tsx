@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Dumbbell, Heart, Users, Trophy, RotateCw, Bell, ArrowLeft, MessageSquare } from 'lucide-react-native';
-import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../theme/themedStyles';
 import { GlassCard } from '../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { db } from '../config/firebase';
@@ -21,6 +22,8 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase
 export default function NotificationsScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   const [activeFilter, setActiveFilter] = useState('All');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,19 +95,19 @@ export default function NotificationsScreen() {
   const getIconComponent = (type: string, warningColor = false) => {
     switch (type) {
       case 'workout':
-        return <Dumbbell size={20} color={COLORS.primary} />;
+        return <Dumbbell size={20} color={colors.primary} />;
       case 'message':
-        return <MessageSquare size={20} color={COLORS.primary} />;
+        return <MessageSquare size={20} color={colors.primary} />;
       case 'like':
-        return <Heart size={20} color={COLORS.textMuted} />;
+        return <Heart size={20} color={colors.textMuted} />;
       case 'invite':
-        return <Users size={20} color={COLORS.textMuted} />;
+        return <Users size={20} color={colors.textMuted} />;
       case 'badge':
-        return <Trophy size={20} color={warningColor ? COLORS.warning : COLORS.primary} fill="#000000" />;
+        return <Trophy size={20} color={warningColor ? colors.warning : colors.primary} fill="#000000" />;
       case 'sync':
-        return <RotateCw size={20} color={COLORS.textMuted} />;
+        return <RotateCw size={20} color={colors.textMuted} />;
       default:
-        return <Bell size={20} color={COLORS.textMuted} />;
+        return <Bell size={20} color={colors.textMuted} />;
     }
   };
 
@@ -132,7 +135,7 @@ export default function NotificationsScreen() {
           <Text style={styles.brandTitle}>PULSE</Text>
         </View>
         <TouchableOpacity activeOpacity={0.8} style={styles.iconButton}>
-          <Bell size={22} color={COLORS.primary} />
+          <Bell size={22} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -178,7 +181,7 @@ export default function NotificationsScreen() {
         {/* Categorized Feed */}
         <View style={styles.list}>
           {loading ? (
-            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 24 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 24 }} />
           ) : filteredNotifications.length === 0 ? (
             <Text style={styles.emptyText}>No notifications in this category.</Text>
           ) : (
@@ -271,10 +274,10 @@ export default function NotificationsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     height: 64,
@@ -282,9 +285,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(30, 30, 30, 0.7)',
+    backgroundColor: isDark ? 'rgba(30, 30, 30, 0.7)' : 'rgba(255, 255, 255, 0.7)',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderGlass,
+    borderBottomColor: colors.borderGlass,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -297,7 +300,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
   },
   headerAvatar: {
     width: '100%',
@@ -307,7 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: -1,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   iconButton: {
     padding: 4,
@@ -323,11 +326,11 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   screenSubtitle: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontWeight: '500',
   },
   filtersContainer: {
@@ -340,9 +343,9 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   filterChip: {
-    backgroundColor: 'rgba(30, 30, 30, 0.7)',
+    backgroundColor: isDark ? 'rgba(30, 30, 30, 0.7)' : 'rgba(255, 255, 255, 0.7)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -350,15 +353,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeFilterChip: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   filterChipText: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontWeight: '600',
   },
   activeFilterChipText: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   list: {
     paddingHorizontal: 20,
@@ -371,7 +374,7 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     marginTop: 10,
@@ -393,10 +396,10 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: COLORS.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.8,
         shadowRadius: 4,
@@ -410,16 +413,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
-    flexShrink: 0, // Ensure it doesn't shrink
+    flexShrink: 0,
   },
   workoutIconBlock: {
-    backgroundColor: 'rgba(204, 255, 0, 0.1)',
-    borderColor: 'rgba(204, 255, 0, 0.2)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(118, 158, 0, 0.1)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
   },
   badgeIconBlock: {
     backgroundColor: 'rgba(252, 209, 59, 0.1)',
@@ -437,34 +440,34 @@ const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   timeText: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   snippetText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 18,
   },
   highlightText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: 'bold',
   },
   warningHighlightText: {
-    color: COLORS.warning,
+    color: colors.warning,
   },
   actionBtn: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
     marginTop: 4,
   },
   actionBtnText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 12,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -472,7 +475,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 40,
   },

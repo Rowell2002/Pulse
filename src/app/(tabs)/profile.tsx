@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { Trophy, Zap, ArrowRight, Settings, BarChart2, Share2, Grid, Users } from 'lucide-react-native';
 import Svg, { Defs, LinearGradient, Stop, Circle as SvgCircle } from 'react-native-svg';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -23,6 +24,8 @@ const { width } = Dimensions.get('window');
 export default function ProfileScreen() {
   const router = useRouter();
   const { userData, user } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   const [completedWorkoutsCount, setCompletedWorkoutsCount] = useState(0);
   const [streakDays, setStreakDays] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -136,7 +139,7 @@ export default function ProfileScreen() {
             onPress={() => router.push('/profile/client-stats')}
             style={styles.navLinkCard}
           >
-            <BarChart2 size={16} color={COLORS.primary} />
+            <BarChart2 size={16} color={colors.primary} />
             <Text style={styles.navLinkCardText}>My Stats</Text>
           </TouchableOpacity>
 
@@ -145,7 +148,7 @@ export default function ProfileScreen() {
             onPress={() => router.push('/profile/settings')}
             style={styles.navLinkCard}
           >
-            <Settings size={16} color={COLORS.primary} />
+            <Settings size={16} color={colors.primary} />
             <Text style={styles.navLinkCardText}>Settings</Text>
           </TouchableOpacity>
         </View>
@@ -157,8 +160,8 @@ export default function ProfileScreen() {
               <Svg style={StyleSheet.absoluteFill} viewBox="0 0 120 120">
                 <Defs>
                   <LinearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <Stop offset="0%" stopColor={COLORS.primary} />
-                    <Stop offset="100%" stopColor={COLORS.secondary} />
+                    <Stop offset="0%" stopColor={colors.primary} />
+                    <Stop offset="100%" stopColor={colors.secondary} />
                   </LinearGradient>
                 </Defs>
                 <SvgCircle cx="60" cy="60" r="57" stroke="url(#avatarGrad)" strokeWidth="4" fill="none" />
@@ -186,7 +189,7 @@ export default function ProfileScreen() {
               <>
                 <View style={styles.statCell}>
                   {loadingStats ? (
-                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <Text style={styles.statVal}>{clientCount}</Text>
                   )}
@@ -207,7 +210,7 @@ export default function ProfileScreen() {
               <>
                 <View style={styles.statCell}>
                   {loadingStats ? (
-                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <Text style={styles.statVal}>{completedWorkoutsCount}</Text>
                   )}
@@ -216,7 +219,7 @@ export default function ProfileScreen() {
                 <View style={styles.statDivider} />
                 <View style={styles.statCell}>
                   {loadingStats ? (
-                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <Text style={styles.statVal}>{streakDays}</Text>
                   )}
@@ -251,7 +254,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Transformation Journey</Text>
-            <Grid size={18} color={COLORS.primary} />
+            <Grid size={18} color={colors.primary} />
           </View>
 
           <View style={styles.journeyGrid}>
@@ -273,14 +276,14 @@ export default function ProfileScreen() {
           <View style={styles.milestonesGrid}>
             {/* Milestone 1 */}
             <GlassCard style={styles.milestoneCard}>
-              <Trophy size={32} color={COLORS.primary} fill="#000000" />
+              <Trophy size={32} color={colors.primary} fill={colors.textAccent} />
               <Text style={styles.milestoneTitle}>Power Peak</Text>
               <Text style={styles.milestoneSub}>Top 1% Squat</Text>
             </GlassCard>
 
             {/* Milestone 2 */}
             <GlassCard style={styles.milestoneCard}>
-              <Zap size={32} color={COLORS.secondary} fill={COLORS.secondary} />
+              <Zap size={32} color={colors.secondary} fill={colors.secondary} />
               <Text style={styles.milestoneTitle}>Hyper-Focus</Text>
               <Text style={styles.milestoneSub}>100 Day Club</Text>
             </GlassCard>
@@ -291,10 +294,10 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 20,
@@ -312,14 +315,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     height: 40,
     borderRadius: 8,
   },
   navLinkCardText: {
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -345,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 55,
     overflow: 'hidden',
     borderWidth: 4,
-    borderColor: '#000000',
+    borderColor: colors.background,
   },
   avatar: {
     width: '100%',
@@ -358,10 +361,10 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.secondary,
+    backgroundColor: colors.secondary,
     borderWidth: 4,
-    borderColor: '#000000',
-    shadowColor: COLORS.secondary,
+    borderColor: colors.background,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 5,
@@ -369,13 +372,13 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 6,
   },
   profileTagline: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     paddingHorizontal: 20,
     lineHeight: 18,
@@ -388,7 +391,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
     paddingVertical: 16,
     marginBottom: 20,
   },
@@ -399,19 +402,19 @@ const styles = StyleSheet.create({
   statVal: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   statLbl: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statDivider: {
     width: 1,
     height: 28,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
   },
   actionButtonsRow: {
     flexDirection: 'row',
@@ -421,13 +424,13 @@ const styles = StyleSheet.create({
   editBtn: {
     flex: 1,
     height: 48,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   editBtnText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -436,12 +439,12 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   shareBtnText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -457,7 +460,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   journeyGrid: {
     flexDirection: 'row',
@@ -469,9 +472,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.04)',
+    borderColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
   },
   gridImage: {
     width: '100%',
@@ -486,15 +489,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingVertical: 18,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
   },
   milestoneTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   milestoneSub: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
 });

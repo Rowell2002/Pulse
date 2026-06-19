@@ -23,7 +23,8 @@ import {
   Download,
   Eye,
 } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -31,6 +32,8 @@ import { useAuth } from '../../context/AuthContext';
 export default function SettingsScreen() {
   const router = useRouter();
   const { userData, signOut, updateProfile } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   // Safeguard default values from user data or fallback to defaults
   const settings = userData?.settings || {
@@ -118,7 +121,7 @@ export default function SettingsScreen() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <ChevronLeft size={20} color={COLORS.textPrimary} />
+          <ChevronLeft size={20} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings & Account</Text>
         <View style={styles.headerPlaceholder} />
@@ -137,7 +140,7 @@ export default function SettingsScreen() {
               <Text style={styles.premiumPlanName}>Elite Performer</Text>
               <Text style={styles.premiumRenewal}>Renewal on Sept 12, 2024</Text>
             </View>
-            <Crown size={28} color={COLORS.primary} fill="rgba(204,255,0,0.15)" />
+            <Crown size={28} color={colors.primary} fill={isDark ? "rgba(204,255,0,0.15)" : "rgba(118,158,0,0.15)"} />
           </View>
           <TouchableOpacity activeOpacity={0.85} style={styles.manageSubButton}>
             <Text style={styles.manageSubText}>Manage Subscription</Text>
@@ -149,20 +152,20 @@ export default function SettingsScreen() {
           <Text style={styles.sectionLabel}>ACCOUNT</Text>
           <GlassCard style={styles.listCard}>
             <RowLink
-              icon={<User size={18} color={COLORS.textMuted} />}
+              icon={<User size={18} color={colors.textMuted} />}
               label="Personal Information"
               bordered
               onPress={() => router.push('/profile/edit')}
             />
             <RowLink
-              icon={<Mail size={18} color={COLORS.textMuted} />}
-              label="Email & Security"
+              icon={<Mail size={18} color={colors.textMuted} />}
+              label="Email & Sign In"
               bordered
               onPress={() => {}}
             />
             <RowLink
-              icon={<Smartphone size={18} color={COLORS.textMuted} />}
-              label="Connected Devices"
+              icon={<Smartphone size={18} color={colors.textMuted} />}
+              label="Device & Sync"
               onPress={() => {}}
             />
           </GlassCard>
@@ -173,47 +176,41 @@ export default function SettingsScreen() {
           <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
           <GlassCard style={styles.listCard}>
             <ToggleRow
-              icon={<Bell size={18} color={COLORS.textMuted} />}
+              icon={<Bell size={18} color={colors.textMuted} />}
               label="Push Notifications"
-              description="Daily workout reminders"
+              description="Alerts for workouts and coach updates"
               value={pushNotifs}
-              onValueChange={(val) => handleToggleSetting('pushNotifications', val)}
               bordered
+              onValueChange={(val) => handleToggleSetting('pushNotifications', val)}
             />
             <ToggleRow
-              icon={<Mail size={18} color={COLORS.textMuted} />}
-              label="Email Reports"
-              description="Weekly performance insights"
+              icon={<Mail size={18} color={colors.textMuted} />}
+              label="Weekly Digest"
+              description="Progress summaries and stats in your inbox"
               value={emailReports}
+              bordered
               onValueChange={(val) => handleToggleSetting('emailReports', val)}
             />
-          </GlassCard>
-        </View>
-
-        {/* Preferences Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PREFERENCES</Text>
-          <GlassCard style={styles.listCard}>
             <ToggleRow
-              icon={<Smartphone size={18} color={COLORS.textMuted} />}
-              label="Bluetooth Sync"
-              description="Smart watch heart rate pairing"
+              icon={<Smartphone size={18} color={colors.textMuted} />}
+              label="Bluetooth Accessories"
+              description="Connect heart rate monitors & vital trackers"
               value={bluetooth}
+              bordered
               onValueChange={(val) => handleToggleSetting('bluetooth', val)}
-              bordered
             />
             <ToggleRow
-              icon={<Moon size={18} color={COLORS.textMuted} />}
+              icon={<Moon size={18} color={colors.textMuted} />}
               label="High-Contrast Dark Mode"
-              description="Deep OLED background"
+              description="OLED black layout optimization"
               value={darkMode}
-              onValueChange={(val) => handleToggleSetting('darkMode', val)}
               bordered
+              onValueChange={(val) => handleToggleSetting('darkMode', val)}
             />
             <ToggleRow
-              icon={<Shield size={18} color={COLORS.textMuted} />}
-              label="Metric Units"
-              description="Display heights in cm, weights in kg"
+              icon={<Shield size={18} color={colors.textMuted} />}
+              label="Metric Units (kg/km)"
+              description="Toggle standard metric vs imperial units"
               value={metricUnits}
               onValueChange={(val) => handleToggleSetting('metricUnits', val)}
             />
@@ -230,7 +227,7 @@ export default function SettingsScreen() {
               onPress={() => handleToggleSetting('profileVisibility', !settings.profileVisibility)}
             >
               <View style={styles.rowLeft}>
-                <Eye size={18} color={COLORS.textMuted} />
+                <Eye size={18} color={colors.textMuted} />
                 <Text style={styles.rowLabel}>Profile Visibility</Text>
               </View>
               <View style={settings.profileVisibility ? styles.publicBadge : styles.privateBadge}>
@@ -242,10 +239,10 @@ export default function SettingsScreen() {
             <View style={styles.divider} />
             <TouchableOpacity activeOpacity={0.8} style={styles.rowItem}>
               <View style={styles.rowLeft}>
-                <Download size={18} color={COLORS.textMuted} />
+                <Download size={18} color={colors.textMuted} />
                 <Text style={styles.rowLabel}>Export Personal Data</Text>
               </View>
-              <Download size={16} color={COLORS.textMuted} />
+              <Download size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </GlassCard>
         </View>
@@ -256,7 +253,7 @@ export default function SettingsScreen() {
           <GlassCard style={styles.listCard}>
             <View style={styles.rowItem}>
               <View style={styles.rowLeft}>
-                <Crown size={18} color={COLORS.primary} fill="rgba(204,255,0,0.15)" />
+                <Crown size={18} color={colors.primary} fill={isDark ? "rgba(204,255,0,0.15)" : "rgba(118,158,0,0.15)"} />
                 <View style={styles.rowMeta}>
                   <Text style={styles.rowLabel}>Trainer Mode</Text>
                   <Text style={styles.rowDescription}>Access dashboard & client controls</Text>
@@ -265,7 +262,7 @@ export default function SettingsScreen() {
               <Switch
                 value={userData?.role === 'trainer'}
                 onValueChange={handleToggleTrainerRole}
-                trackColor={{ false: '#3E3E3E', true: COLORS.primary }}
+                trackColor={{ false: '#3E3E3E', true: colors.primary }}
                 thumbColor={userData?.role === 'trainer' ? '#000000' : '#888888'}
               />
             </View>
@@ -278,7 +275,7 @@ export default function SettingsScreen() {
           onPress={handleSignOut}
           style={styles.signOutButton}
         >
-          <LogOut size={18} color={COLORS.error} />
+          <LogOut size={18} color={colors.error} />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
 
@@ -304,6 +301,8 @@ function RowLink({
   bordered?: boolean;
   onPress: () => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(getStyles);
   return (
     <>
       <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={styles.rowItem}>
@@ -311,7 +310,7 @@ function RowLink({
           {icon}
           <Text style={styles.rowLabel}>{label}</Text>
         </View>
-        <ChevronRight size={16} color={COLORS.textMuted} />
+        <ChevronRight size={16} color={colors.textMuted} />
       </TouchableOpacity>
       {bordered && <View style={styles.divider} />}
     </>
@@ -333,6 +332,8 @@ function ToggleRow({
   onValueChange: (v: boolean) => void;
   bordered?: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(getStyles);
   return (
     <>
       <View style={styles.rowItem}>
@@ -346,7 +347,7 @@ function ToggleRow({
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: '#3E3E3E', true: COLORS.primary }}
+          trackColor={{ false: '#3E3E3E', true: colors.primary }}
           thumbColor={value ? '#000000' : '#888888'}
         />
       </View>
@@ -357,10 +358,10 @@ function ToggleRow({
 
 /* ─── Styles ────────────────────────────────────────────────── */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     height: 60,
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderGlass,
+    borderBottomColor: colors.borderGlass,
   },
   backButton: {
     padding: 8,
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   headerPlaceholder: {
     width: 36,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: 'rgba(204, 255, 0, 0.08)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.08)' : 'rgba(118, 158, 0, 0.08)',
   },
   premiumTop: {
     flexDirection: 'row',
@@ -412,29 +413,29 @@ const styles = StyleSheet.create({
   premiumPlanLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: 1.5,
   },
   premiumPlanName: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   premiumRenewal: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   manageSubButton: {
     height: 40,
     borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   manageSubText: {
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     letterSpacing: 2,
     paddingLeft: 4,
   },
@@ -468,42 +469,42 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: 15,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   rowDescription: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   publicBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    backgroundColor: 'rgba(204, 255, 0, 0.1)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(118, 158, 0, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(204, 255, 0, 0.2)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
   },
   publicBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   privateBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
   },
   privateBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     marginHorizontal: 16,
   },
   signOutButton: {
@@ -519,13 +520,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   signOutText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 15,
     fontWeight: 'bold',
   },
   footerText: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     opacity: 0.4,
     marginTop: 16,

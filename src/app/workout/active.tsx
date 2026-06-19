@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { ArrowLeft, ArrowRight, Play, Settings, X, Check } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { EXERCISES, PROGRAMS } from '../../constants/exerciseDb';
@@ -23,6 +24,8 @@ export default function ActiveWorkoutScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { user, userData } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   
   const [timerSeconds, setTimerSeconds] = useState(45);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
@@ -281,7 +284,7 @@ export default function ActiveWorkoutScreen() {
   if (completedSets.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -296,7 +299,7 @@ export default function ActiveWorkoutScreen() {
             onPress={() => router.back()}
             style={styles.headerCloseBtn}
           >
-            <X size={22} color={COLORS.primary} />
+            <X size={22} color={colors.primary} />
           </TouchableOpacity>
           <Text style={styles.brandTitle}>PULSE</Text>
         </View>
@@ -306,7 +309,7 @@ export default function ActiveWorkoutScreen() {
             <Text style={styles.elapsedText}>{formatElapsed(elapsedSeconds)}</Text>
           </View>
           <TouchableOpacity activeOpacity={0.8} style={styles.settingsIcon}>
-            <Settings size={20} color={COLORS.textMuted} />
+            <Settings size={20} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
       </View>
@@ -330,7 +333,7 @@ export default function ActiveWorkoutScreen() {
           />
           <View style={styles.videoOverlay} />
           <View style={styles.playButtonWrapper}>
-            <Play size={28} color="#000000" fill="#000000" />
+            <Play size={28} color={colors.textAccent} fill={colors.textAccent} />
           </View>
           <View style={styles.guideBadge}>
             <Text style={styles.guideBadgeText}>Technique Guide</Text>
@@ -421,7 +424,7 @@ export default function ActiveWorkoutScreen() {
                     >
                       {isCompleted ? (
                         <View style={styles.checkedCircleBg}>
-                          <Check size={14} color="#000000" strokeWidth={3.5} />
+                          <Check size={14} color={colors.textAccent} strokeWidth={3.5} />
                         </View>
                       ) : (
                         <View style={styles.emptyCircle} />
@@ -465,7 +468,7 @@ export default function ActiveWorkoutScreen() {
             disabled={!prevExercise}
             onPress={() => prevExercise && navigateToExercise(prevExercise.id)}
           >
-            <ArrowLeft size={16} color={prevExercise ? COLORS.textPrimary : COLORS.textMuted} />
+            <ArrowLeft size={16} color={prevExercise ? colors.textPrimary : colors.textMuted} />
             <Text style={[styles.prevExerciseText, !prevExercise && styles.disabledText]}>PREV</Text>
           </TouchableOpacity>
 
@@ -480,7 +483,7 @@ export default function ActiveWorkoutScreen() {
             onPress={() => nextExercise && navigateToExercise(nextExercise.id)}
           >
             <Text style={[styles.nextExerciseText, !nextExercise && styles.disabledText]}>NEXT</Text>
-            <ArrowRight size={16} color={nextExercise ? COLORS.textPrimary : COLORS.textMuted} />
+            <ArrowRight size={16} color={nextExercise ? colors.textPrimary : colors.textMuted} />
           </TouchableOpacity>
         </View>
       </View>
@@ -488,10 +491,10 @@ export default function ActiveWorkoutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     height: 64,
@@ -499,9 +502,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(30,30,30,0.7)',
+    backgroundColor: isDark ? 'rgba(30,30,30,0.7)' : 'rgba(255,255,255,0.7)',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderGlass,
+    borderBottomColor: colors.borderGlass,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -515,7 +518,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: -1,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   headerRight: {
     flexDirection: 'row',
@@ -523,15 +526,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   elapsedBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   elapsedText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontSize: 12,
     fontWeight: 'bold',
     fontFamily: 'System',
@@ -550,14 +553,14 @@ const styles = StyleSheet.create({
   exerciseIndex: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   exerciseTitle: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     textTransform: 'uppercase',
   },
   videoWrapper: {
@@ -566,7 +569,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
   },
   videoImage: {
     width: '100%',
@@ -584,7 +587,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -610,7 +613,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   headerCell: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: 10,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -625,26 +628,26 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.04)',
+    borderColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
   },
   completedRow: {
     opacity: 0.65,
-    backgroundColor: 'rgba(204, 255, 0, 0.02)',
-    borderColor: 'rgba(204, 255, 0, 0.08)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.02)' : 'rgba(118, 158, 0, 0.03)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.08)' : 'rgba(118, 158, 0, 0.1)',
   },
   activeRow: {
-    borderColor: 'rgba(204, 255, 0, 0.3)',
-    backgroundColor: 'rgba(204, 255, 0, 0.03)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.3)' : 'rgba(118, 158, 0, 0.35)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.03)' : 'rgba(118, 158, 0, 0.05)',
   },
   setNumText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   activeSetNum: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   inputBoxMock: {
     justifyContent: 'center',
@@ -652,10 +655,10 @@ const styles = StyleSheet.create({
     height: 36,
     marginHorizontal: 16,
     borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
   },
   inputBoxMockText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -663,13 +666,13 @@ const styles = StyleSheet.create({
     height: 36,
     marginHorizontal: 16,
     borderRadius: 6,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.8)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
     justifyContent: 'center',
   },
   input: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -683,7 +686,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -692,7 +695,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
   },
   restTimerCard: {
     padding: 16,
@@ -706,13 +709,13 @@ const styles = StyleSheet.create({
   timerLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     letterSpacing: 1,
   },
   timerSkipText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   timerBody: {
     flexDirection: 'row',
@@ -722,7 +725,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontFamily: 'System',
   },
   timerControls: {
@@ -730,15 +733,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   timerAdjustBtn: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   timerAdjustBtnText: {
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -747,9 +750,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#0E0E0E',
+    backgroundColor: isDark ? '#0E0E0E' : colors.surface,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
     paddingVertical: 16,
     paddingHorizontal: 20,
   },
@@ -766,25 +769,25 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
   },
   prevExerciseText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   finishWorkoutBtn: {
     flex: 1,
     height: 48,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   finishWorkoutText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 13,
     fontWeight: '900',
     letterSpacing: 0.5,
@@ -796,19 +799,19 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
   },
   nextExerciseText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   disabledBtn: {
     opacity: 0.3,
   },
   disabledText: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
 });

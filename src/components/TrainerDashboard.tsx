@@ -10,7 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { Users, ClipboardList, MessageSquare, Megaphone, CheckCircle, Flame, ArrowRight } from 'lucide-react-native';
-import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../theme/themedStyles';
 import { GlassCard } from './GlassCard';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
@@ -22,6 +23,8 @@ export const TrainerDashboard: React.FC = () => {
   const router = useRouter();
   const { userData } = useAuth();
   const { threads, sendMessage } = useChat();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   const [athleteCount, setAthleteCount] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -175,11 +178,11 @@ export const TrainerDashboard: React.FC = () => {
       {/* Stats Rings / Cards Row */}
       <View style={styles.statsRow}>
         <GlassCard style={styles.statCard}>
-          <Users size={24} color={COLORS.primary} />
+          <Users size={24} color={colors.primary} />
           <View style={styles.statMeta}>
             <Text style={styles.statLabel}>Total Clients</Text>
             {loadingStats ? (
-              <ActivityIndicator size="small" color={COLORS.primary} />
+              <ActivityIndicator size="small" color={colors.primary} />
             ) : (
               <Text style={styles.statValue}>{athleteCount}</Text>
             )}
@@ -187,7 +190,7 @@ export const TrainerDashboard: React.FC = () => {
         </GlassCard>
 
         <GlassCard style={styles.statCard}>
-          <MessageSquare size={24} color={COLORS.secondary} />
+          <MessageSquare size={24} color={colors.secondary} />
           <View style={styles.statMeta}>
             <Text style={styles.statLabel}>Unread Chats</Text>
             <Text style={styles.statValue}>{unreadThreadsCount}</Text>
@@ -198,7 +201,7 @@ export const TrainerDashboard: React.FC = () => {
       {/* Broadcast Announcement Bento Card */}
       <GlassCard style={styles.broadcastCard}>
         <View style={styles.cardHeader}>
-          <Megaphone size={18} color={COLORS.primary} />
+          <Megaphone size={18} color={colors.primary} />
           <Text style={styles.cardTitle}>Group Broadcast</Text>
         </View>
         <Text style={styles.cardDesc}>
@@ -237,10 +240,10 @@ export const TrainerDashboard: React.FC = () => {
         <Text style={styles.sectionTitle}>Recent Client Activity</Text>
         <View style={styles.activityList}>
           {loadingActivities ? (
-            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginVertical: 16 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 16 }} />
           ) : clientActivities.length === 0 ? (
             <GlassCard style={styles.activityCard}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', width: '100%', paddingVertical: 8 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 13, textAlign: 'center', width: '100%', paddingVertical: 8 }}>
                 No recent client workout activity found.
               </Text>
             </GlassCard>
@@ -269,10 +272,10 @@ export const TrainerDashboard: React.FC = () => {
         >
           <GlassCard style={styles.quickLinkCard}>
             <View style={styles.quickLinkLeft}>
-              <ClipboardList size={18} color={COLORS.primary} />
+              <ClipboardList size={18} color={colors.primary} />
               <Text style={styles.quickLinkLabel}>Assign Exercises & Workouts</Text>
             </View>
-            <ArrowRight size={16} color={COLORS.textMuted} />
+            <ArrowRight size={16} color={colors.textMuted} />
           </GlassCard>
         </TouchableOpacity>
       </View>
@@ -280,10 +283,10 @@ export const TrainerDashboard: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 20,
@@ -298,12 +301,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1.5,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   welcomeTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   statsRow: {
     flexDirection: 'row',
@@ -321,13 +324,13 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontWeight: '500',
   },
   statValue: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   broadcastCard: {
     padding: 20,
@@ -341,23 +344,23 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   cardDesc: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     lineHeight: 18,
   },
   broadcastInputWrapper: {
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   broadcastInput: {
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 13,
     minHeight: 60,
     textAlignVertical: 'top',
@@ -365,7 +368,7 @@ const styles = StyleSheet.create({
   broadcastBtn: {
     height: 44,
     borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -375,7 +378,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   broadcastBtnText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -385,7 +388,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   activityList: {
     gap: 8,
@@ -400,7 +403,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   activityMeta: {
     flex: 1,
@@ -409,15 +412,15 @@ const styles = StyleSheet.create({
   activityUser: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   activityDetail: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   activityTime: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     opacity: 0.8,
   },
   quickLinkRow: {
@@ -436,7 +439,7 @@ const styles = StyleSheet.create({
   },
   quickLinkLabel: {
     fontSize: 14,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontWeight: '600',
   },
 });

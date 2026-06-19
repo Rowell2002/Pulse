@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 interface GlassCardProps {
   children: React.ReactNode;
@@ -9,10 +9,20 @@ interface GlassCardProps {
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({ children, style, active = false }) => {
+  const { colors, isDark } = useTheme();
+
   return (
     <View
       style={[
         styles.card,
+        {
+          backgroundColor: isDark ? 'rgba(30, 30, 30, 0.65)' : 'rgba(255, 255, 255, 0.65)',
+          borderColor: colors.borderGlass,
+        },
+        active && {
+          borderColor: colors.primary,
+          shadowColor: colors.primary,
+        },
         active && styles.activeCard,
         style,
       ]}
@@ -24,16 +34,12 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, style, active = 
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(30, 30, 30, 0.65)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
     padding: 16,
     overflow: 'hidden',
   },
   activeCard: {
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.15,
     shadowRadius: 10,

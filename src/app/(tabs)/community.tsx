@@ -13,7 +13,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Heart, MessageSquare, Share2, Award, Zap, MessageSquarePlus, Utensils, Users, ChevronRight, Search, X } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useChat, ChatThread } from '../../context/ChatContext';
@@ -25,6 +26,8 @@ export default function CommunityScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { threads, loading, searchUsers, startChatWithUser, markAsRead } = useChat();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   const handleMarkAllRead = async () => {
     try {
@@ -155,18 +158,18 @@ export default function CommunityScreen() {
       {/* Header Search Bar */}
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
-          <Search size={18} color={COLORS.textMuted} />
+          <Search size={18} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search chats..."
-            placeholderTextColor="rgba(255,255,255,0.3)"
+            placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
             value={chatSearchQuery}
             onChangeText={setChatSearchQuery}
             autoCapitalize="none"
           />
           {chatSearchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setChatSearchQuery('')} activeOpacity={0.8}>
-              <X size={16} color={COLORS.textMuted} />
+              <X size={16} color={colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -194,7 +197,7 @@ export default function CommunityScreen() {
                     </Text>
                   </View>
                   <View style={styles.pbBadge}>
-                    <Award size={12} color={COLORS.primary} />
+                    <Award size={12} color={colors.primary} />
                     <Text style={styles.pbText}>Personal Best</Text>
                   </View>
                 </View>
@@ -221,10 +224,10 @@ export default function CommunityScreen() {
                   >
                     <Heart
                       size={16}
-                      color={liked ? COLORS.error : COLORS.textMuted}
-                      fill={liked ? COLORS.error : 'transparent'}
+                      color={liked ? colors.error : colors.textMuted}
+                      fill={liked ? colors.error : 'transparent'}
                     />
-                    <Text style={[styles.actionText, liked && { color: COLORS.error }]}>
+                    <Text style={[styles.actionText, liked && { color: colors.error }]}>
                       {likeCount}
                     </Text>
                   </TouchableOpacity>
@@ -234,7 +237,7 @@ export default function CommunityScreen() {
                     onPress={handleMessageMarcus}
                     style={styles.actionButton}
                   >
-                    <MessageSquare size={16} color={COLORS.textMuted} />
+                    <MessageSquare size={16} color={colors.textMuted} />
                     <Text style={styles.actionText}>12</Text>
                   </TouchableOpacity>
 
@@ -243,7 +246,7 @@ export default function CommunityScreen() {
                     onPress={handleShare}
                     style={styles.actionButton}
                   >
-                    <Share2 size={16} color={COLORS.textMuted} />
+                    <Share2 size={16} color={colors.textMuted} />
                   </TouchableOpacity>
                 </View>
               </GlassCard>
@@ -255,7 +258,7 @@ export default function CommunityScreen() {
               <GlassCard style={styles.challengeCard}>
                 <View style={styles.challengeLeft}>
                   <View style={styles.challengeIconWrapper}>
-                    <Zap size={22} color={COLORS.primary} fill={COLORS.primary} />
+                    <Zap size={22} color={colors.primary} fill={colors.primary} />
                   </View>
                   <View style={styles.challengeMeta}>
                     <Text style={styles.challengeTitle}>6-Week Shred Challenge</Text>
@@ -286,7 +289,7 @@ export default function CommunityScreen() {
           </View>
 
           {loading ? (
-            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginVertical: 20 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 20 }} />
           ) : filteredThreads.length === 0 ? (
             <GlassCard style={styles.emptyChatsCard}>
               <Text style={styles.emptyChatsText}>
@@ -310,7 +313,7 @@ export default function CommunityScreen() {
                   >
                     <GlassCard style={[styles.chatCard, thread.unreadCount === 0 && thread.type === 'direct' && thread.id === 'james-wilson' && styles.mutedChatCard]}>
                       {isGroup ? (
-                        <View style={[styles.groupEmojiWrapper, { borderColor: (thread.accentColor || COLORS.primary) + '40' }]}>
+                        <View style={[styles.groupEmojiWrapper, { borderColor: (thread.accentColor || colors.primary) + '40' }]}>
                           <Text style={styles.groupEmojiText}>{thread.emoji || '👥'}</Text>
                         </View>
                       ) : (
@@ -340,7 +343,7 @@ export default function CommunityScreen() {
                         </View>
                         {isGroup && thread.memberCount && (
                           <View style={styles.groupMeta}>
-                            <Users size={10} color={COLORS.textMuted} />
+                            <Users size={10} color={colors.textMuted} />
                             <Text style={styles.groupMemberText}>
                               {thread.memberCount.toLocaleString()} members
                             </Text>
@@ -362,7 +365,7 @@ export default function CommunityScreen() {
                           <Text style={styles.unreadBadgeText}>{thread.unreadCount}</Text>
                         </View>
                       ) : (
-                        <ChevronRight size={16} color={COLORS.textMuted} />
+                        <ChevronRight size={16} color={colors.textMuted} />
                       )}
                     </GlassCard>
                   </TouchableOpacity>
@@ -407,17 +410,17 @@ export default function CommunityScreen() {
                 style={styles.closeBtn}
                 activeOpacity={0.8}
               >
-                <X size={20} color={COLORS.textPrimary} />
+                <X size={20} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
 
             {/* Modal Search Bar */}
             <View style={styles.modalSearchWrapper}>
-              <Search size={16} color={COLORS.textMuted} style={styles.modalSearchIcon} />
+              <Search size={16} color={colors.textMuted} style={styles.modalSearchIcon} />
               <TextInput
                 style={styles.modalSearchInput}
                 placeholder="Search athletes by name..."
-                placeholderTextColor="rgba(255,255,255,0.3)"
+                placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
                 value={userQuery}
                 onChangeText={setUserQuery}
                 autoFocus
@@ -425,7 +428,7 @@ export default function CommunityScreen() {
               />
               {userQuery.length > 0 && (
                 <TouchableOpacity onPress={() => setUserQuery('')} activeOpacity={0.8}>
-                  <X size={16} color={COLORS.textMuted} />
+                  <X size={16} color={colors.textMuted} />
                 </TouchableOpacity>
               )}
             </View>
@@ -437,7 +440,7 @@ export default function CommunityScreen() {
             >
               {searching ? (
                 <View style={styles.modalLoaderContainer}>
-                  <ActivityIndicator size="small" color={COLORS.primary} />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 </View>
               ) : userResults.length === 0 ? (
                 <View style={styles.emptyResultsContainer}>
@@ -473,7 +476,7 @@ export default function CommunityScreen() {
                           </Text>
                         ) : null}
                       </View>
-                      <ChevronRight size={16} color={COLORS.textMuted} />
+                      <ChevronRight size={16} color={colors.textMuted} />
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -486,10 +489,10 @@ export default function CommunityScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   searchBarWrapper: {
     paddingHorizontal: 20,
@@ -499,9 +502,9 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
     borderRadius: 20,
     paddingHorizontal: 12,
     height: 40,
@@ -509,14 +512,14 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 14,
     height: '100%',
     padding: 0,
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 100, // Extra space for FAB
+    paddingBottom: 100,
     gap: 24,
   },
   section: {
@@ -525,7 +528,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -543,7 +546,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
   },
   authorMeta: {
     gap: 2,
@@ -552,23 +555,23 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   postTime: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   teamText: {
-    color: COLORS.secondary,
+    color: colors.secondary,
     fontWeight: 'bold',
   },
   pbBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(204, 255, 0, 0.12)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.12)' : 'rgba(118, 158, 0, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(204, 255, 0, 0.2)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -576,13 +579,13 @@ const styles = StyleSheet.create({
   pbText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   postContent: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   postImageWrapper: {
@@ -590,7 +593,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     position: 'relative',
   },
   postImage: {
@@ -605,7 +608,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 24,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.06)',
+    borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
     paddingTop: 12,
   },
   actionButton: {
@@ -615,7 +618,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   challengeCard: {
     flexDirection: 'row',
@@ -623,7 +626,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: colors.primary,
   },
   challengeLeft: {
     flexDirection: 'row',
@@ -634,9 +637,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 8,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -646,14 +649,14 @@ const styles = StyleSheet.create({
   challengeTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   challengeCount: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   joinButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -661,7 +664,7 @@ const styles = StyleSheet.create({
   joinButtonText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#000000',
+    color: colors.textAccent,
   },
   recentChatsHeader: {
     flexDirection: 'row',
@@ -671,7 +674,7 @@ const styles = StyleSheet.create({
   markAllReadText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   chatsList: {
     gap: 8,
@@ -700,22 +703,22 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: COLORS.secondary,
+    backgroundColor: colors.secondary,
     borderWidth: 2,
-    borderColor: '#000000',
+    borderColor: colors.background,
   },
   placeholderInitial: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   chatIconWrapper: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -731,25 +734,25 @@ const styles = StyleSheet.create({
   chatName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   chatTime: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   chatSnippet: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   unreadSnippet: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   emptyChatsCard: {
     padding: 24,
@@ -757,7 +760,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyChatsText: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
   },
@@ -768,10 +771,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 15,
@@ -782,7 +785,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -797,13 +800,13 @@ const styles = StyleSheet.create({
   },
   groupMemberText: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   unreadBadge: {
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 5,
@@ -811,7 +814,7 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#000000',
+    color: colors.textAccent,
   },
 
   // Modal Styles
@@ -824,11 +827,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modalContent: {
-    backgroundColor: '#161616',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
     borderBottomWidth: 0,
     maxHeight: '80%',
     paddingBottom: 24,
@@ -836,7 +839,7 @@ const styles = StyleSheet.create({
   dragIndicator: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 8,
@@ -850,9 +853,9 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.textPrimary,
   },
   closeBtn: {
     width: 32,
@@ -865,9 +868,9 @@ const styles = StyleSheet.create({
   modalSearchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
     borderRadius: 12,
     marginHorizontal: 20,
     paddingHorizontal: 12,
@@ -880,7 +883,7 @@ const styles = StyleSheet.create({
   },
   modalSearchInput: {
     flex: 1,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: 14,
     height: '100%',
     padding: 0,
@@ -892,7 +895,7 @@ const styles = StyleSheet.create({
   listSectionTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     marginBottom: 12,
@@ -908,7 +911,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyResultsText: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
   },
@@ -919,9 +922,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.04)',
+    borderColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
     borderRadius: 16,
     padding: 12,
   },
@@ -934,16 +937,16 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
     justifyContent: 'center',
     alignItems: 'center',
   },
   userInitial: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   userMeta: {
     flex: 1,
@@ -952,16 +955,16 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   userUsername: {
     fontSize: 11,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   userBio: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 2,
   },
 });

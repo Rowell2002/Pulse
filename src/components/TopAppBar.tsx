@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { Bell } from 'lucide-react-native';
-import { COLORS } from '../theme/colors';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../theme/themedStyles';
 import { db } from '../config/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export const TopAppBar: React.FC = () => {
   const router = useRouter();
   const { userData, user } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export const TopAppBar: React.FC = () => {
         style={styles.iconButton}
       >
         <View style={styles.iconWrapper}>
-          <Bell size={24} color={COLORS.textSecondary} />
+          <Bell size={24} color={colors.textSecondary} />
           {unreadCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>
@@ -72,16 +75,16 @@ export const TopAppBar: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   header: {
     height: 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(30, 30, 30, 0.7)',
+    backgroundColor: isDark ? 'rgba(30, 30, 30, 0.7)' : 'rgba(255, 255, 255, 0.7)',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderGlass,
+    borderBottomColor: colors.borderGlass,
   },
   leftContainer: {
     flexDirection: 'row',
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(204, 255, 0, 0.2)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
   },
   avatar: {
     width: '100%',
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: -1,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   iconButton: {
     padding: 4,
@@ -117,7 +120,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -125,10 +128,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 3,
     borderWidth: 1,
-    borderColor: '#000000',
+    borderColor: isDark ? '#000000' : '#FFFFFF',
   },
   badgeText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 8,
     fontWeight: 'bold',
     fontFamily: 'System',

@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
 import { Home, Dumbbell, Users, User, MessageSquare } from 'lucide-react-native';
-import { COLORS } from '../theme/colors';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../theme/themedStyles';
 
 export const BottomNavBar: React.FC = () => {
   const router = useRouter();
@@ -13,6 +14,8 @@ export const BottomNavBar: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { userData } = useAuth();
   const { threads } = useChat();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   const isTrainer = userData?.role === 'trainer';
 
@@ -54,7 +57,7 @@ export const BottomNavBar: React.FC = () => {
             <View style={styles.iconContainer}>
               <IconComponent
                 size={isActive ? 24 : 22}
-                color={isActive ? COLORS.primary : COLORS.textMuted}
+                color={isActive ? colors.primary : colors.textMuted}
                 strokeWidth={isActive ? 2.5 : 2}
               />
               {isCommunity && unreadChatsCount > 0 && (
@@ -68,7 +71,7 @@ export const BottomNavBar: React.FC = () => {
             <Text
               style={[
                 styles.tabLabel,
-                { color: isActive ? COLORS.primary : COLORS.textMuted, fontWeight: isActive ? 'bold' : '500' },
+                { color: isActive ? colors.primary : colors.textMuted, fontWeight: isActive ? 'bold' : '500' },
               ]}
             >
               {tab.name}
@@ -80,20 +83,20 @@ export const BottomNavBar: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingTop: 12,
-    backgroundColor: 'rgba(30, 30, 30, 0.75)',
+    backgroundColor: isDark ? 'rgba(30, 30, 30, 0.75)' : 'rgba(255, 255, 255, 0.75)',
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderGlass,
+    borderTopColor: colors.borderGlass,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     ...Platform.select({
       ios: {
-        shadowColor: COLORS.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.1,
         shadowRadius: 15,
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -134,10 +137,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 3,
     borderWidth: 1,
-    borderColor: '#000000',
+    borderColor: isDark ? '#000000' : '#FFFFFF',
   },
   badgeText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 8,
     fontWeight: 'bold',
     fontFamily: 'System',

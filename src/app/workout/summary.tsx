@@ -11,7 +11,8 @@ import {
   Share,
 } from 'react-native';
 import { Trophy, Timer, Flame, Dumbbell, ArrowRight, Share2 } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { EXERCISES } from '../../constants/exerciseDb';
@@ -19,6 +20,8 @@ import { EXERCISES } from '../../constants/exerciseDb';
 export default function WorkoutSummaryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
   const [notes, setNotes] = useState('');
 
   // Retrieve finished exercise details from database
@@ -68,7 +71,7 @@ export default function WorkoutSummaryScreen() {
           onPress={handleShare}
           style={styles.iconButton}
         >
-          <Share2 size={22} color={COLORS.primary} />
+          <Share2 size={22} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -94,7 +97,7 @@ export default function WorkoutSummaryScreen() {
           <GlassCard style={[styles.volumeCard, styles.glowAccent]}>
             <View style={styles.bentoHeaderRow}>
               <Text style={styles.bentoLabel}>Total Volume</Text>
-              <Dumbbell size={18} color={completedSetsParam > 0 ? COLORS.primary : COLORS.textMuted} />
+              <Dumbbell size={18} color={completedSetsParam > 0 ? colors.primary : colors.textMuted} />
             </View>
             <View style={styles.volumeValueContainer}>
               {completedSetsParam > 0 ? (
@@ -108,7 +111,7 @@ export default function WorkoutSummaryScreen() {
                 </>
               ) : (
                 <>
-                  <Text style={[styles.volumeValue, { color: COLORS.textMuted, fontSize: 20 }]}>
+                  <Text style={[styles.volumeValue, { color: colors.textMuted, fontSize: 20 }]}>
                     No sets completed
                   </Text>
                   <View style={styles.trackBar}>
@@ -123,7 +126,7 @@ export default function WorkoutSummaryScreen() {
           <View style={styles.dualRow}>
             {/* Time Card */}
             <GlassCard style={styles.metricsCell}>
-              <Timer size={20} color={COLORS.textMuted} />
+              <Timer size={20} color={colors.textMuted} />
               <View style={styles.metricsMeta}>
                 <Text style={styles.bentoLabel}>Time</Text>
                 <Text style={styles.metricsValue}>{timeParam}</Text>
@@ -132,7 +135,7 @@ export default function WorkoutSummaryScreen() {
 
             {/* Calories Card */}
             <GlassCard style={styles.metricsCell}>
-              <Flame size={20} color={COLORS.textMuted} />
+              <Flame size={20} color={colors.textMuted} />
               <View style={styles.metricsMeta}>
                 <Text style={styles.bentoLabel}>Calories</Text>
                 <Text style={styles.metricsValue}>{caloriesBurned}</Text>
@@ -146,12 +149,12 @@ export default function WorkoutSummaryScreen() {
           <Text style={styles.sectionLabel}>Personal Bests</Text>
           <GlassCard style={styles.pbCard}>
             <View style={styles.pbLeft}>
-              <View style={[styles.pbIconContainer, completedSetsParam === 0 && { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
-                <Trophy size={20} color={completedSetsParam > 0 ? COLORS.primary : COLORS.textMuted} fill={completedSetsParam > 0 ? "#000000" : "none"} />
+              <View style={[styles.pbIconContainer, completedSetsParam === 0 && { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
+                <Trophy size={20} color={completedSetsParam > 0 ? colors.primary : colors.textMuted} fill={completedSetsParam > 0 ? colors.textAccent : "none"} />
               </View>
               <View style={styles.pbMeta}>
                 <Text style={styles.pbTitle}>{exercise.name}</Text>
-                <Text style={[styles.pbRecordLabel, completedSetsParam === 0 && { color: COLORS.textMuted }]}>
+                <Text style={[styles.pbRecordLabel, completedSetsParam === 0 && { color: colors.textMuted }]}>
                   {completedSetsParam > 0
                     ? (maxWeightParam > 0 ? `NEW RECORD: ${maxWeightParam}KG` : `RECORD: ${completedSetsParam} SETS COMPLETED`)
                     : 'No sets completed'}
@@ -159,7 +162,7 @@ export default function WorkoutSummaryScreen() {
               </View>
             </View>
             <View style={styles.pbRight}>
-              <Text style={[styles.pbDelta, completedSetsParam === 0 && { color: COLORS.textMuted }]}>
+              <Text style={[styles.pbDelta, completedSetsParam === 0 && { color: colors.textMuted }]}>
                 {completedSetsParam > 0 
                   ? (maxWeightParam > 0 ? `+${maxWeightParam - (maxWeightParam > 50 ? 5 : 2.5)}kg` : 'PR') 
                   : '--'}
@@ -179,7 +182,7 @@ export default function WorkoutSummaryScreen() {
               onChangeText={setNotes}
               multiline={true}
               placeholder={`Reflect on your performance... (e.g., Felt strong doing ${exercise.name})`}
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           </GlassCard>
         </View>
@@ -200,10 +203,10 @@ export default function WorkoutSummaryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     height: 60,
@@ -212,7 +215,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderGlass,
+    borderBottomColor: colors.borderGlass,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -225,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(204, 255, 0, 0.2)',
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
   },
   headerAvatar: {
     width: '100%',
@@ -234,7 +237,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     letterSpacing: 1.5,
   },
   iconButton: {
@@ -257,7 +260,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
     borderBottomWidth: 140,
-    borderBottomColor: '#000000',
+    borderBottomColor: colors.background,
     opacity: 0.85,
     marginTop: 116,
   },
@@ -271,13 +274,13 @@ const styles = StyleSheet.create({
   celebrationTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: 2,
   },
   celebrationSubtitle: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   bentoSection: {
     paddingHorizontal: 20,
@@ -289,8 +292,8 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   glowAccent: {
-    borderColor: 'rgba(204, 255, 0, 0.2)',
-    shadowColor: COLORS.primary,
+    borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(118, 158, 0, 0.2)',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
   bentoLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
@@ -313,22 +316,22 @@ const styles = StyleSheet.create({
   volumeValue: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   volumeUnit: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   trackBar: {
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     borderRadius: 2,
     overflow: 'hidden',
   },
   trackBarFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   dualRow: {
     flexDirection: 'row',
@@ -347,7 +350,7 @@ const styles = StyleSheet.create({
   metricsValue: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   section: {
     paddingHorizontal: 20,
@@ -357,7 +360,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
     paddingLeft: 4,
@@ -377,7 +380,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(204, 255, 0, 0.1)',
+    backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(118, 158, 0, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -387,12 +390,12 @@ const styles = StyleSheet.create({
   pbTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   pbRecordLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   pbRight: {
     alignItems: 'flex-end',
@@ -400,11 +403,11 @@ const styles = StyleSheet.create({
   pbDelta: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   pbDeltaSub: {
     fontSize: 9,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   notesCard: {
     padding: 14,
@@ -412,7 +415,7 @@ const styles = StyleSheet.create({
   },
   notesInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 14,
     textAlignVertical: 'top',
     height: '100%',
@@ -424,7 +427,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     height: 52,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -432,7 +435,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    color: '#000000',
+    color: colors.textAccent,
     fontSize: 15,
     fontWeight: '900',
     letterSpacing: 0.5,

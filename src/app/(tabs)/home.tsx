@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Play, Flame, Utensils, Droplet, Check, MapPin } from 'lucide-react-native';
-import { COLORS } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
+import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
 import { VitalityRing } from '../../components/VitalityRing';
 import { useRouter } from 'expo-router';
@@ -24,6 +25,8 @@ const { width } = Dimensions.get('window');
 export default function DashboardScreen() {
   const router = useRouter();
   const { userData } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(getStyles);
 
   const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
   const [loadingFocus, setLoadingFocus] = useState(true);
@@ -190,7 +193,7 @@ export default function DashboardScreen() {
               <Text style={styles.bentoTagText}>TODAY'S FOCUS</Text>
             </View>
             {loadingFocus ? (
-              <ActivityIndicator size="small" color={COLORS.primary} style={{ alignSelf: 'flex-start', marginTop: 4 }} />
+              <ActivityIndicator size="small" color={colors.primary} style={{ alignSelf: 'flex-start', marginTop: 4 }} />
             ) : (
               <>
                 <Text style={styles.bentoTitle}>{focusTitle}</Text>
@@ -199,7 +202,7 @@ export default function DashboardScreen() {
             )}
           </View>
           <View style={styles.playButton}>
-            <Play size={28} color="#000000" fill="#000000" />
+            <Play size={28} color={colors.textAccent} fill={colors.textAccent} />
           </View>
         </View>
       </TouchableOpacity>
@@ -218,8 +221,8 @@ export default function DashboardScreen() {
           <View style={styles.ringCell}>
             <VitalityRing
               progress={caloriesProgress}
-              color={COLORS.primary}
-              icon={<Flame size={20} color={COLORS.primary} />}
+              color={colors.primary}
+              icon={<Flame size={20} color={colors.primary} />}
             />
             <Text style={styles.ringLabel}>Calories</Text>
             <Text style={styles.ringValue}>{caloriesBurned} kcal</Text>
@@ -229,8 +232,8 @@ export default function DashboardScreen() {
           <View style={styles.ringCell}>
             <VitalityRing
               progress={0.61}
-              color={COLORS.secondary}
-              icon={<Utensils size={20} color={COLORS.secondary} />}
+              color={colors.secondary}
+              icon={<Utensils size={20} color={colors.secondary} />}
             />
             <Text style={styles.ringLabel}>Protein</Text>
             <Text style={styles.ringValue}>92g / 150g</Text>
@@ -240,8 +243,8 @@ export default function DashboardScreen() {
           <View style={styles.ringCell}>
             <VitalityRing
               progress={0.7}
-              color={COLORS.tertiary}
-              icon={<Droplet size={20} color={COLORS.tertiary} />}
+              color={colors.tertiary}
+              icon={<Droplet size={20} color={colors.tertiary} />}
             />
             <Text style={styles.ringLabel}>Water</Text>
             <Text style={styles.ringValue}>2.1L / 3L</Text>
@@ -264,15 +267,15 @@ export default function DashboardScreen() {
           >
             <GlassCard style={styles.habitCard}>
               <View style={styles.habitIconWrapper}>
-                <Check size={18} color={completedWorkoutsToday.length > 0 ? COLORS.primary : COLORS.textMuted} />
+                <Check size={18} color={completedWorkoutsToday.length > 0 ? colors.primary : colors.textMuted} />
               </View>
               <View style={styles.habitMeta}>
                 <Text style={styles.habitTitle}>Workout</Text>
                 <View style={styles.habitStatusRow}>
                   {completedWorkoutsToday.length > 0 ? (
                     <>
-                      <Check size={14} color={COLORS.primary} />
-                      <Text style={[styles.habitStatusText, { color: COLORS.primary, fontWeight: '600' }]}>Done</Text>
+                      <Check size={14} color={colors.primary} />
+                      <Text style={[styles.habitStatusText, { color: colors.primary, fontWeight: '600' }]}>Done</Text>
                     </>
                   ) : (
                     <Text style={styles.habitStatusText}>Not started</Text>
@@ -289,7 +292,7 @@ export default function DashboardScreen() {
           >
             <GlassCard style={styles.habitCard}>
               <View style={styles.habitIconWrapper}>
-                <Flame size={18} color={COLORS.textMuted} />
+                <Flame size={18} color={colors.textMuted} />
               </View>
               <View style={styles.habitMeta}>
                 <Text style={styles.habitTitle}>Steps</Text>
@@ -305,7 +308,7 @@ export default function DashboardScreen() {
           >
             <GlassCard style={styles.habitCard}>
               <View style={styles.habitIconWrapper}>
-                <Utensils size={18} color={COLORS.textMuted} />
+                <Utensils size={18} color={colors.textMuted} />
               </View>
               <View style={styles.habitMeta}>
                 <Text style={styles.habitTitle}>Nutrition</Text>
@@ -341,7 +344,7 @@ export default function DashboardScreen() {
                   : 'Hire a certified personal coach in app settings.'}
               </Text>
               <View style={styles.upcomingLocation}>
-                <MapPin size={12} color={COLORS.textMuted} />
+                <MapPin size={12} color={colors.textMuted} />
                 <Text style={styles.upcomingLocationText}>
                   {userData?.trainerId
                     ? (trainerData?.bio || 'Performance Center')
@@ -362,10 +365,10 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 20,
@@ -380,12 +383,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1.5,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   welcomeTitle: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   bentoCardWrapper: {
     height: 200,
@@ -393,7 +396,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     borderWidth: 1,
-    borderColor: COLORS.borderGlass,
+    borderColor: colors.borderGlass,
   },
   bentoImage: {
     width: '100%',
@@ -419,7 +422,7 @@ const styles = StyleSheet.create({
   },
   bentoTag: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 20,
@@ -432,18 +435,18 @@ const styles = StyleSheet.create({
   bentoTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   bentoMeta: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     opacity: 0.8,
   },
   playButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -459,11 +462,11 @@ const styles = StyleSheet.create({
   vitalityTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   vitalityMeta: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   ringsGrid: {
     flexDirection: 'row',
@@ -476,12 +479,12 @@ const styles = StyleSheet.create({
   ringLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginTop: 4,
   },
   ringValue: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   habitsSection: {
     gap: 12,
@@ -489,7 +492,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   habitsScroll: {
     gap: 12,
@@ -506,7 +509,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: COLORS.surfaceCard,
+    backgroundColor: colors.surfaceCard,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -516,7 +519,7 @@ const styles = StyleSheet.create({
   habitTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   habitStatusRow: {
     flexDirection: 'row',
@@ -525,7 +528,7 @@ const styles = StyleSheet.create({
   },
   habitStatusText: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   upcomingWrapper: {
     marginBottom: 20,
@@ -541,7 +544,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   upcomingContent: {
     padding: 16,
@@ -558,13 +561,13 @@ const styles = StyleSheet.create({
   upcomingLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: 1,
   },
   upcomingTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   upcomingLocation: {
     flexDirection: 'row',
@@ -573,13 +576,13 @@ const styles = StyleSheet.create({
   },
   upcomingLocationText: {
     fontSize: 12,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   coachAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
 });
