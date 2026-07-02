@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-} from 'react-native';
-import { Play, Flame, Utensils, Droplet, Check, MapPin } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { Pedometer } from 'expo-sensors';
+import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { Check, Droplet, Dumbbell, Flame, MapPin, Play, Utensils } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { GlassCard } from '../../components/GlassCard';
+import { TrainerDashboard } from '../../components/TrainerDashboard';
+import { VitalityRing } from '../../components/VitalityRing';
+import { db } from '../../config/firebase';
+import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
-import { GlassCard } from '../../components/GlassCard';
-import { VitalityRing } from '../../components/VitalityRing';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../../context/AuthContext';
-import { TrainerDashboard } from '../../components/TrainerDashboard';
-import { db } from '../../config/firebase';
-import { collection, query, where, orderBy, onSnapshot, doc } from 'firebase/firestore';
 
 const { width } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ export default function DashboardScreen() {
   const [loadingFocus, setLoadingFocus] = useState(true);
   const [completedWorkoutsToday, setCompletedWorkoutsToday] = useState<any[]>([]);
   const [trainerData, setTrainerData] = useState<any>(null);
-  
+
   // Step tracker states
   const [baselineSteps, setBaselineSteps] = useState(0);
   const [sessionSteps, setSessionSteps] = useState(0);
@@ -305,19 +305,16 @@ export default function DashboardScreen() {
       {/* Habit Tracker */}
       <View style={styles.habitsSection}>
         <Text style={styles.sectionTitle}>Active Habits</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.habitsScroll}
-        >
+        <View style={styles.habitsGrid}>
           {/* Habit 1 — Workout */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => router.push('/(tabs)/workouts')}
+            style={styles.habitTouchTarget}
           >
             <GlassCard style={styles.habitCard}>
               <View style={styles.habitIconWrapper}>
-                <Check size={18} color={completedWorkoutsToday.length > 0 ? colors.primary : colors.textMuted} />
+                <Dumbbell size={18} color={colors.textMuted} />
               </View>
               <View style={styles.habitMeta}>
                 <Text style={styles.habitTitle}>Workout</Text>
@@ -336,10 +333,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
 
           {/* Habit 2 — Steps */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => router.push('/profile/client-stats')}
-          >
+          <View style={styles.habitTouchTarget}>
             <GlassCard style={styles.habitCard}>
               <View style={styles.habitIconWrapper}>
                 <Flame size={18} color={colors.textMuted} />
@@ -351,9 +345,8 @@ export default function DashboardScreen() {
                 </Text>
               </View>
             </GlassCard>
-          </TouchableOpacity>
-
-        </ScrollView>
+          </View>
+        </View>
       </View>
 
       {/* Upcoming Event */}
@@ -531,16 +524,20 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
   },
-  habitsScroll: {
+  habitsGrid: {
+    flexDirection: 'row',
     gap: 12,
-    paddingRight: 20,
+    width: '100%',
+  },
+  habitTouchTarget: {
+    flex: 1,
   },
   habitCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    width: 140,
     padding: 12,
+    flex: 1,
   },
   habitIconWrapper: {
     width: 36,
