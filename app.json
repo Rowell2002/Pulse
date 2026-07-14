@@ -8,6 +8,7 @@
     "scheme": "pulse",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.app.pulse",
       "icon": "./assets/expo.icon",
       "infoPlist": {
         "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts."
