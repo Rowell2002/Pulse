@@ -33,6 +33,7 @@ export default function SignUpScreen() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [weightUnit, setWeightUnit] = useState<'kg' | 'lbs'>('lbs');
 
   const handleSignUp = async () => {
     const trimmedName = name.trim();
@@ -80,7 +81,7 @@ export default function SignUpScreen() {
         return;
       }
 
-      await signUp(trimmedEmail, password, trimmedName, trimmedUsername);
+      await signUp(trimmedEmail, password, trimmedName, trimmedUsername, weightUnit);
       // The Auth Guard redirect in _layout.tsx will navigate to /onboarding automatically
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to create your account.');
@@ -240,6 +241,48 @@ export default function SignUpScreen() {
                 </View>
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>PREFERRED WEIGHT UNIT</Text>
+                <View style={styles.unitToggleContainer}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[
+                      styles.unitButton,
+                      weightUnit === 'lbs' && styles.unitButtonActive,
+                    ]}
+                    onPress={() => setWeightUnit('lbs')}
+                    disabled={isSubmitting}
+                  >
+                    <Text
+                      style={[
+                        styles.unitButtonText,
+                        weightUnit === 'lbs' && styles.unitButtonTextActive,
+                      ]}
+                    >
+                      Pounds (lbs)
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[
+                      styles.unitButton,
+                      weightUnit === 'kg' && styles.unitButtonActive,
+                    ]}
+                    onPress={() => setWeightUnit('kg')}
+                    disabled={isSubmitting}
+                  >
+                    <Text
+                      style={[
+                        styles.unitButtonText,
+                        weightUnit === 'kg' && styles.unitButtonTextActive,
+                      ]}
+                    >
+                      Kilograms (kg)
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <TouchableOpacity
                 activeOpacity={0.9}
                 style={[styles.button, isSubmitting && styles.disabledButton]}
@@ -394,6 +437,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
+  },
+  unitToggleContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 2,
+  },
+  unitButton: {
+    flex: 1,
+    height: 52,
+    backgroundColor: '#1E1E1E',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  unitButtonActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: 'rgba(204, 255, 0, 0.1)',
+  },
+  unitButtonText: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  unitButtonTextActive: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
   },
   disabledButton: {
     opacity: 0.7,

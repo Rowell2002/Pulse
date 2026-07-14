@@ -193,7 +193,7 @@ export default function DashboardScreen() {
   const hasAssigned = assignedExercises.length > 0;
   const focusTitle = hasAssigned ? assignedExercises[0].name : "Push Day - Chest Press";
   const focusMeta = hasAssigned
-    ? `Assigned: ${assignedExercises[0].sets} Sets x ${assignedExercises[0].reps} Reps @ ${assignedExercises[0].weight} lbs`
+    ? `Assigned: ${assignedExercises[0].sets} Sets x ${assignedExercises[0].reps} Reps @ ${assignedExercises[0].weight} ${assignedExercises[0].unit || 'lbs'}`
     : "45 Min • High Intensity";
 
   // Upcoming calculations

@@ -45,6 +45,7 @@ export const TrainerClients: React.FC = () => {
 
   // Assignment form state
   const [selectedExerciseId, setSelectedExerciseId] = useState(EXERCISES[0]?.id || '');
+  const [exerciseSearch, setExerciseSearch] = useState('');
   const [targetSets, setTargetSets] = useState('3');
   const [targetReps, setTargetReps] = useState('10');
   const [targetWeight, setTargetWeight] = useState('0');
@@ -53,6 +54,21 @@ export const TrainerClients: React.FC = () => {
   // Active client assignments state
   const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
+
+  // Auto-select first matching exercise if current selection gets filtered out
+  useEffect(() => {
+    if (exerciseSearch) {
+      const matches = EXERCISES.filter(ex =>
+        ex.name.toLowerCase().includes(exerciseSearch.toLowerCase())
+      );
+      if (matches.length > 0) {
+        const isStillVisible = matches.some(ex => ex.id === selectedExerciseId);
+        if (!isStillVisible) {
+          setSelectedExerciseId(matches[0].id);
+        }
+      }
+    }
+  }, [exerciseSearch]);
 
   // Fetch all registered athletes (non-trainers)
   useEffect(() => {
@@ -156,6 +172,7 @@ export const TrainerClients: React.FC = () => {
     const exercise = EXERCISES.find((e) => e.id === selectedExerciseId);
     if (!exercise) return;
 
+    const clientWeightUnit = (selectedClient?.settings?.weightUnit || 'lbs').toLowerCase();
     setAssigning(true);
     try {
       const setsNum = parseInt(targetSets) || 3;
@@ -177,6 +194,7 @@ export const TrainerClients: React.FC = () => {
         sets: setsNum,
         reps: repsNum,
         weight: weightNum,
+        unit: clientWeightUnit,
         assignedBy: user.uid,
         assignedAt: serverTimestamp(),
       });
@@ -192,7 +210,7 @@ export const TrainerClients: React.FC = () => {
         category: 'Training',
         type: 'workout',
         title: 'New Workout Assigned',
-        snippet: `${userData?.name || 'Your Trainer'} assigned "${exercise.name}" (${setsNum} sets x ${repsNum} reps @ ${weightNum} lbs).`,
+        snippet: `${userData?.name || 'Your Trainer'} assigned "${exercise.name}" (${setsNum} sets x ${repsNum} reps @ ${weightNum} ${clientWeightUnit}).`,
         highlight: `"${exercise.name}"`,
         unread: true,
         createdAt: serverTimestamp(),
@@ -254,6 +272,10 @@ export const TrainerClients: React.FC = () => {
       c.username.toLowerCase().includes(search.toLowerCase())
   );
 
+  const filteredExercises = EXERCISES.filter((ex) =>
+    ex.name.toLowerCase().includes(exerciseSearch.toLowerCase())
+  );
+
   // If a client is selected, show their full management workspace
   if (selectedClient) {
     return (
@@ -309,23 +331,45 @@ export const TrainerClients: React.FC = () => {
             <Text style={styles.sectionTitle}>Assign New Exercise</Text>
             <View style={styles.formGroup}>
               <Text style={styles.formLabel}>SELECT EXERCISE</Text>
+              
+              {/* Exercise search bar */}
+              <View style={styles.exerciseSearchWrapper}>
+                <Search size={14} color={colors.textMuted} />
+                <TextInput
+                  style={styles.exerciseSearchInput}
+                  placeholder="Search exercises..."
+                  placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
+                  value={exerciseSearch}
+                  onChangeText={setExerciseSearch}
+                />
+                {exerciseSearch.length > 0 && (
+                  <TouchableOpacity onPress={() => setExerciseSearch('')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={{ color: colors.textMuted, fontSize: 12 }}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
               <View style={styles.pickerWrapper}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pickerList}>
-                  {EXERCISES.map((ex) => {
-                    const isSelected = selectedExerciseId === ex.id;
-                    return (
-                      <TouchableOpacity
-                        key={ex.id}
-                        onPress={() => setSelectedExerciseId(ex.id)}
-                        style={[styles.pickerItem, isSelected && styles.pickerItemActive]}
-                      >
-                        <Text style={[styles.pickerItemText, isSelected && styles.pickerItemTextActive]}>
-                          {ex.name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
+                {filteredExercises.length === 0 ? (
+                  <Text style={styles.noExercisesText}>No matching exercises found.</Text>
+                ) : (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pickerList}>
+                    {filteredExercises.map((ex) => {
+                      const isSelected = selectedExerciseId === ex.id;
+                      return (
+                        <TouchableOpacity
+                          key={ex.id}
+                          onPress={() => setSelectedExerciseId(ex.id)}
+                          style={[styles.pickerItem, isSelected && styles.pickerItemActive]}
+                        >
+                          <Text style={[styles.pickerItemText, isSelected && styles.pickerItemTextActive]}>
+                            {ex.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                )}
               </View>
             </View>
 
@@ -349,7 +393,7 @@ export const TrainerClients: React.FC = () => {
                 />
               </View>
               <View style={styles.inputCol}>
-                <Text style={styles.formLabel}>WEIGHT (LBS)</Text>
+                <Text style={styles.formLabel}>WEIGHT ({(selectedClient?.settings?.weightUnit || 'lbs').toUpperCase()})</Text>
                 <TextInput
                   style={styles.formInput}
                   keyboardType="numeric"
@@ -396,7 +440,7 @@ export const TrainerClients: React.FC = () => {
                       <View>
                         <Text style={styles.assignmentName}>{asg.name}</Text>
                         <Text style={styles.assignmentMeta}>
-                          {asg.sets} Sets • {asg.reps} Reps • {asg.weight} lbs
+                          {asg.sets} Sets • {asg.reps} Reps • {asg.weight} {asg.unit || 'lbs'}
                         </Text>
                       </View>
                     </View>
@@ -752,6 +796,31 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   },
   pickerItemTextActive: {
     color: colors.primary,
+  },
+  exerciseSearchWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceCard,
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 38,
+    gap: 8,
+    marginBottom: 4,
+  },
+  exerciseSearchInput: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: 13,
+    height: '100%',
+  },
+  noExercisesText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+    width: '100%',
+    paddingVertical: 12,
   },
   inputsRow: {
     flexDirection: 'row',

@@ -22,6 +22,7 @@ import {
   Crown,
   Download,
   Eye,
+  Dumbbell,
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
@@ -49,8 +50,9 @@ export default function SettingsScreen() {
   const bluetooth = (settings as any).bluetooth !== undefined ? (settings as any).bluetooth : false;
   const darkMode = settings.darkMode;
   const metricUnits = (settings as any).metricUnits !== undefined ? (settings as any).metricUnits : true;
+  const weightUnit = (settings as any).weightUnit || (metricUnits ? 'kg' : 'lbs');
 
-  const handleToggleSetting = async (key: string, value: boolean) => {
+  const handleToggleSetting = async (key: string, value: any) => {
     try {
       await updateProfile({
         settings: {
@@ -212,8 +214,40 @@ export default function SettingsScreen() {
               label="Metric Units (kg/km)"
               description="Toggle standard metric vs imperial units"
               value={metricUnits}
-              onValueChange={(val) => handleToggleSetting('metricUnits', val)}
+              bordered
+              onValueChange={async (val) => {
+                // Save metricUnits and auto-sync weightUnit to match
+                try {
+                  await updateProfile({
+                    settings: {
+                      ...settings,
+                      metricUnits: val,
+                      weightUnit: val ? 'kg' : 'lbs',
+                    },
+                  });
+                } catch (error) {
+                  console.error('[Settings] Failed to update metricUnits:', error);
+                }
+              }}
             />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.rowItem}
+              onPress={() => handleToggleSetting('weightUnit', weightUnit === 'kg' ? 'lbs' : 'kg')}
+            >
+              <View style={styles.rowLeft}>
+                <Dumbbell size={18} color={colors.textMuted} />
+                <View style={styles.rowMeta}>
+                  <Text style={styles.rowLabel}>Weight Unit</Text>
+                  <Text style={styles.rowDescription}>Select preferred weight unit</Text>
+                </View>
+              </View>
+              <View style={weightUnit === 'kg' ? styles.publicBadge : styles.privateBadge}>
+                <Text style={weightUnit === 'kg' ? styles.publicBadgeText : styles.privateBadgeText}>
+                  {weightUnit.toUpperCase()}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </GlassCard>
         </View>
 

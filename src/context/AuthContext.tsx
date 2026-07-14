@@ -29,6 +29,8 @@ export interface UserProfile {
     emailReports: boolean;
     darkMode: boolean;
     profileVisibility: boolean;
+    weightUnit?: 'kg' | 'lbs';
+    metricUnits?: boolean;
   };
   createdAt: string;
 }
@@ -40,7 +42,7 @@ interface AuthContextType {
   loading: boolean;
   isMock: boolean;
   signIn: (emailOrUsername: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string, username: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, username: string, weightUnit?: 'kg' | 'lbs') => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -134,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Standard Email/Password Sign Up
-  const signUp = async (email: string, password: string, name: string, username: string) => {
+  const signUp = async (email: string, password: string, name: string, username: string, weightUnit: 'kg' | 'lbs' = 'lbs') => {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -154,6 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           emailReports: false,
           darkMode: true,
           profileVisibility: true,
+          weightUnit: weightUnit,
         },
         createdAt: new Date().toISOString(),
       };
@@ -198,6 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             emailReports: true,
             darkMode: true,
             profileVisibility: true,
+            weightUnit: 'lbs',
           },
           createdAt: new Date().toISOString(),
         };
@@ -244,6 +248,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             emailReports: true,
             darkMode: true,
             profileVisibility: true,
+            weightUnit: 'lbs',
           },
           createdAt: new Date().toISOString(),
         };
