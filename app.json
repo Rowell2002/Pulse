@@ -8,9 +8,12 @@
     "scheme": "pulse",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.app.pulse",
       "icon": "./assets/expo.icon",
       "infoPlist": {
-        "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts."
+        "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts.",
+        "NSCameraUsageDescription": "This app requires access to your camera to take progress photos.",
+        "NSPhotoLibraryUsageDescription": "This app requires access to your photo library to select progress photos."
       }
     },
     "android": {

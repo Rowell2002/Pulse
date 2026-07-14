@@ -193,7 +193,7 @@ export default function WorkoutsScreen() {
                     <View style={styles.programMeta}>
                       <Text style={styles.programTitle}>{asg.name}</Text>
                       <Text style={styles.programWeek}>
-                        {asg.sets} Sets • {asg.reps} Reps • {asg.weight} lbs
+                        {asg.sets} Sets • {asg.reps} Reps • {asg.weight} {asg.unit || 'lbs'}
                       </Text>
                     </View>
                   </TouchableOpacity>

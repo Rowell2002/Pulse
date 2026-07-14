@@ -26,6 +26,7 @@ export default function ActiveWorkoutScreen() {
   const { user, userData } = useAuth();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
+  const weightUnit = (userData?.settings?.weightUnit || 'lbs').toLowerCase();
   
   const [timerSeconds, setTimerSeconds] = useState(45);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
@@ -226,7 +227,7 @@ export default function ActiveWorkoutScreen() {
             category: 'Training',
             type: 'workout',
             title: 'Client Completed Workout',
-            snippet: `${userData?.name || 'Client'} completed ${exercise.name} (${completedSetsCount} sets, volume: ${sessionVolume} lbs, time: ${sessionTime}).`,
+            snippet: `${userData?.name || 'Client'} completed ${exercise.name} (${completedSetsCount} sets, volume: ${sessionVolume} ${weightUnit}, time: ${sessionTime}).`,
             highlight: exercise.name,
             unread: true,
             createdAt: serverTimestamp(),
@@ -346,7 +347,7 @@ export default function ActiveWorkoutScreen() {
           <View style={styles.tableHeader}>
             <Text style={[styles.headerCell, { flex: 2 }]}>Set</Text>
             <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>
-              {exercise.id.includes('plank') || exercise.id.includes('yoga') ? 'Hold (lbs)' : 'Weight (kg)'}
+              {exercise.id.includes('plank') || exercise.id.includes('yoga') ? `Hold (${weightUnit})` : `Weight (${weightUnit})`}
             </Text>
             <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>
               {exercise.id.includes('plank') || exercise.id.includes('yoga') ? 'Time (sec)' : 'Reps'}

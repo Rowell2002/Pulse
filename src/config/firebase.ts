@@ -3,6 +3,7 @@ import { initializeAuth, getAuth } from 'firebase/auth';
 // @ts-ignore - getReactNativePersistence exists in the RN bundle but is not in the TS types
 import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
@@ -26,6 +27,7 @@ const hasCredentials =
 let app;
 let auth: any = null;
 let db: any = null;
+let storage: any = null;
 const isMockMode = false;
 
 try {
@@ -46,10 +48,11 @@ try {
     auth = getAuth(app);
   }
   db = getFirestore(app);
-  console.log('[Firebase] Successfully initialized real database and authentication services.');
+  storage = getStorage(app);
+  console.log('[Firebase] Successfully initialized real database, storage, and authentication services.');
 } catch (error) {
   console.error('[Firebase] Failed to initialize Firebase services. Please check your credentials in .env:', error);
 }
 
-export { auth, db, isMockMode };
+export { auth, db, storage, isMockMode };
 export default app;

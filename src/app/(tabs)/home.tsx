@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pedometer } from 'expo-sensors';
 import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { Check, Droplet, Dumbbell, Flame, MapPin, Play, Utensils } from 'lucide-react-native';
+import { Check, Droplet, Dumbbell, Flame, MapPin, Play, Utensils, Moon, Heart, Activity, Camera } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -23,6 +23,13 @@ import { useThemedStyles } from '../../theme/themedStyles';
 
 const { width } = Dimensions.get('window');
 
+const MOCK_LATEST_PHOTOS = {
+  date: '2026-05-18',
+  front: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAYhKoiAselBiCxRBlzyYMw8xWps4s8qVztGHesADBVYrQk1g5ezkzbi4LjSODMnrMs7yWAWbrVv2jDRH1xVHRXCyb4fokO1k7MR37FiVKEy6wb3gwNawbNjEo8V674fDzvOYaqmqDBEvjM1Tac8mptP7lO1tcKzAhb4xYPmfSt_YeD-oely4V3Ehf-qhPgUh31t6zlxbg_TmyQOy552gi2g-Grdlinw_hS_aMfkFYGfoJiRaMI0QMmyXaJhcAXQvQKbb4VGrDamVbM',
+  side: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjJrCKDiFz78HKuK8zbLpR2UXF6wppruzUsLGo8CE1HR8m04G6JKeYPp9cNJRz6oCzailuMycfgP-ReOIk0F3vYe86fFqhTDi58uP3OA0qP--skBmMNAL24UPrNPArWtRXN-SRdkB5-__GMon1teys8JBk2NPjd3SuU4OMs9DwLpZkzxkrD-Xo6rV84L22Mr_2J7JmXIVlIt8SREAbEly6uNR7wyDO0W7fvO1FkbaEp31vYs18wWPlWzihENSDVhOwYs2XmZaNjUbu',
+  back: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUv18p0HP1nbaX8Zd4Sg5TnYmfIvejB-9wUNq6acP6TNcWTu_gx1SE0vKK5Gm89GnxzW0ineEZhsDmYEqBywq35LD0q2rYM4uE80gcPLpM-bsgimSFUfzdv1Qf9XddZsOfztWw33vCpgl2TRLBPNiB0EVpiNOSWU8mXgtsUV9yNyYQ3dSU8e_6dUDaI9x9Ug55ieDU4pES7NzX8PyyxyqCjrVy3NiVuT2WXiUEQe3G_UjR7RMoYYPQNYaYaJyIVzNyrJPazrGt2Jp_',
+};
+
 export default function DashboardScreen() {
   const router = useRouter();
   const { userData } = useAuth();
@@ -33,6 +40,46 @@ export default function DashboardScreen() {
   const [loadingFocus, setLoadingFocus] = useState(true);
   const [completedWorkoutsToday, setCompletedWorkoutsToday] = useState<any[]>([]);
   const [trainerData, setTrainerData] = useState<any>(null);
+  const [latestPhotos, setLatestPhotos] = useState<{ date: string; front?: string; side?: string; back?: string } | null>(null);
+
+  // Subscribe to progress photos
+  useEffect(() => {
+    if (!userData?.uid || userData?.role === 'trainer') return;
+    const q = query(
+      collection(db, 'users', userData.uid, 'progress_photos'),
+      orderBy('date', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (querySnap) => {
+      const list: any[] = [];
+      querySnap.forEach((docSnap) => {
+        list.push(docSnap.data());
+      });
+      if (list.length > 0) {
+        const latestDate = list[0].date;
+        const group = list.filter((p: any) => p.date === latestDate);
+        setLatestPhotos({
+          date: latestDate,
+          front: group.find((p: any) => p.angle === 'front')?.url,
+          side: group.find((p: any) => p.angle === 'side')?.url,
+          back: group.find((p: any) => p.angle === 'back')?.url,
+        });
+      } else {
+        setLatestPhotos(MOCK_LATEST_PHOTOS);
+      }
+    });
+    return unsubscribe;
+  }, [userData?.uid, userData?.role]);
+
+  const formatLatestPhotoDate = (dateString: string) => {
+    if (!dateString) return '';
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (monthIndex < 0 || monthIndex > 11 || isNaN(day)) return dateString;
+    return `${day} ${months[monthIndex]} ${parts[0]}`; // e.g. "18 May 2026"
+  };
 
   // Step tracker states
   const [baselineSteps, setBaselineSteps] = useState(0);
@@ -193,7 +240,7 @@ export default function DashboardScreen() {
   const hasAssigned = assignedExercises.length > 0;
   const focusTitle = hasAssigned ? assignedExercises[0].name : "Push Day - Chest Press";
   const focusMeta = hasAssigned
-    ? `Assigned: ${assignedExercises[0].sets} Sets x ${assignedExercises[0].reps} Reps @ ${assignedExercises[0].weight} lbs`
+    ? `Assigned: ${assignedExercises[0].sets} Sets x ${assignedExercises[0].reps} Reps @ ${assignedExercises[0].weight} ${assignedExercises[0].unit || 'lbs'}`
     : "45 Min • High Intensity";
 
   // Upcoming calculations
@@ -345,6 +392,75 @@ export default function DashboardScreen() {
                 </Text>
               </View>
             </GlassCard>
+          </View>
+        </View>
+      </View>
+
+      {/* My Progress Bento Grid Section (Matches Dashboard.jpg) */}
+      <View style={styles.progressSection}>
+        <View style={styles.progressHeader}>
+          <Text style={styles.sectionTitle}>My Progress</Text>
+          <Text style={styles.progressMeta}>Last synced: 7:51 AM, Today</Text>
+        </View>
+
+        <View style={styles.progressGrid}>
+          <View style={styles.progressRow}>
+            {/* Body Weight Card */}
+            <GlassCard style={styles.progressCard}>
+              <View style={styles.cardHeaderRow}>
+                <Text style={styles.cardLabel}>Body Weight</Text>
+                <Activity size={16} color={colors.secondary} />
+              </View>
+              {latestPhotos ? (
+                <Text style={styles.cardDate}>{formatLatestPhotoDate(latestPhotos.date)}</Text>
+              ) : (
+                <Text style={styles.cardDate}>Today</Text>
+              )}
+              <Text style={styles.cardValue}>
+                82.05 <Text style={styles.cardUnitText}>{(userData?.settings?.weightUnit || 'kg').toLowerCase()}</Text>
+              </Text>
+              <View style={styles.weightWave} />
+            </GlassCard>
+
+            {/* Photos Card */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.progressCardTouchable}
+              onPress={() => router.push('/profile/photos' as any)}
+            >
+              <GlassCard style={styles.progressCard}>
+                <View style={styles.cardHeaderRow}>
+                  <Text style={styles.cardLabel}>Photos</Text>
+                  <Camera size={16} color={colors.primary} />
+                </View>
+                {latestPhotos ? (
+                  <>
+                    <Text style={styles.cardDate}>{formatLatestPhotoDate(latestPhotos.date)}</Text>
+                    <View style={styles.thumbRow}>
+                      {latestPhotos.front ? (
+                        <Image source={{ uri: latestPhotos.front }} style={styles.thumbMini} />
+                      ) : (
+                        <View style={styles.thumbMiniPlaceholder} />
+                      )}
+                      {latestPhotos.side ? (
+                        <Image source={{ uri: latestPhotos.side }} style={styles.thumbMini} />
+                      ) : (
+                        <View style={styles.thumbMiniPlaceholder} />
+                      )}
+                      {latestPhotos.back ? (
+                        <Image source={{ uri: latestPhotos.back }} style={styles.thumbMini} />
+                      ) : (
+                        <View style={styles.thumbMiniPlaceholder} />
+                      )}
+                    </View>
+                  </>
+                ) : (
+                  <View style={styles.thumbRowEmpty}>
+                    <Text style={styles.cardSubValue}>Tap to upload progress</Text>
+                  </View>
+                )}
+              </GlassCard>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -618,5 +734,101 @@ const getStyles = (colors: any) => StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: colors.primary,
+  },
+  // My Progress Bento Styles
+  progressSection: {
+    marginTop: 20,
+    gap: 12,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    paddingHorizontal: 4,
+  },
+  progressMeta: {
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  progressGrid: {
+    gap: 12,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  progressCard: {
+    flex: 1,
+    padding: 14,
+    minHeight: 112,
+    justifyContent: 'space-between',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  progressCardTouchable: {
+    flex: 1,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: colors.textSecondary,
+  },
+  cardValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.textPrimary,
+    marginTop: 4,
+  },
+  cardSubValue: {
+    fontSize: 10,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  cardDate: {
+    fontSize: 10,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  cardUnitText: {
+    fontSize: 14,
+    fontWeight: 'normal',
+    color: colors.textMuted,
+  },
+  weightWave: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#FFE600', // yellow wave line as in Dashboard.jpg
+  },
+  thumbRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 6,
+  },
+  thumbMini: {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  thumbMiniPlaceholder: {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: colors.borderGlass,
+    borderStyle: 'dashed',
+  },
+  thumbRowEmpty: {
+    marginTop: 8,
+    justifyContent: 'center',
   },
 });
