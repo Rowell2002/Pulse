@@ -41,6 +41,7 @@ export default function DashboardScreen() {
   const [completedWorkoutsToday, setCompletedWorkoutsToday] = useState<any[]>([]);
   const [trainerData, setTrainerData] = useState<any>(null);
   const [latestPhotos, setLatestPhotos] = useState<{ date: string; front?: string; side?: string; back?: string } | null>(null);
+  const [latestWeight, setLatestWeight] = useState<{ weight: number; date: string } | null>(null);
 
   // Subscribe to progress photos
   useEffect(() => {
@@ -65,6 +66,34 @@ export default function DashboardScreen() {
         });
       } else {
         setLatestPhotos(MOCK_LATEST_PHOTOS);
+      }
+    });
+    return unsubscribe;
+  }, [userData?.uid, userData?.role]);
+
+  // Subscribe to weight history
+  useEffect(() => {
+    if (!userData?.uid || userData?.role === 'trainer') return;
+    const q = query(
+      collection(db, 'users', userData.uid, 'weight_history'),
+      orderBy('date', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (querySnap) => {
+      const list: any[] = [];
+      querySnap.forEach((docSnap) => {
+        list.push(docSnap.data());
+      });
+      if (list.length > 0) {
+        setLatestWeight({
+          weight: list[0].weight,
+          date: list[0].date,
+        });
+      } else {
+        // Fallback default from screenshot
+        setLatestWeight({
+          weight: 82.05,
+          date: '2026-05-18',
+        });
       }
     });
     return unsubscribe;
@@ -406,21 +435,28 @@ export default function DashboardScreen() {
         <View style={styles.progressGrid}>
           <View style={styles.progressRow}>
             {/* Body Weight Card */}
-            <GlassCard style={styles.progressCard}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.cardLabel}>Body Weight</Text>
-                <Activity size={16} color={colors.secondary} />
-              </View>
-              {latestPhotos ? (
-                <Text style={styles.cardDate}>{formatLatestPhotoDate(latestPhotos.date)}</Text>
-              ) : (
-                <Text style={styles.cardDate}>Today</Text>
-              )}
-              <Text style={styles.cardValue}>
-                82.05 <Text style={styles.cardUnitText}>{(userData?.settings?.weightUnit || 'kg').toLowerCase()}</Text>
-              </Text>
-              <View style={styles.weightWave} />
-            </GlassCard>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.progressCardTouchable}
+              onPress={() => router.push('/profile/weight' as any)}
+            >
+              <GlassCard style={styles.progressCard}>
+                <View style={styles.cardHeaderRow}>
+                  <Text style={styles.cardLabel}>Body Weight</Text>
+                  <Activity size={16} color={colors.secondary} />
+                </View>
+                {latestWeight ? (
+                  <Text style={styles.cardDate}>{formatLatestPhotoDate(latestWeight.date)}</Text>
+                ) : (
+                  <Text style={styles.cardDate}>Today</Text>
+                )}
+                <Text style={styles.cardValue}>
+                  {latestWeight ? latestWeight.weight.toFixed(2) : '82.05'}{' '}
+                  <Text style={styles.cardUnitText}>{(userData?.settings?.weightUnit || 'kg').toLowerCase()}</Text>
+                </Text>
+                <View style={styles.weightWave} />
+              </GlassCard>
+            </TouchableOpacity>
 
             {/* Photos Card */}
             <TouchableOpacity
