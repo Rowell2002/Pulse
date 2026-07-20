@@ -11,14 +11,19 @@ import {
   Platform,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
-import { ChevronLeft, Phone, Video, Send, Paperclip, Smile } from 'lucide-react-native';
+import { ChevronLeft, Phone, Video, Send, Paperclip, Smile, FileText, ExternalLink } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS } from '../../theme/colors';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
-import { db } from '../../config/firebase';
+import { db, storage } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as DocumentPicker from 'expo-document-picker';
+import { GlassCard } from '../../components/GlassCard';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -30,6 +35,55 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [targetProfile, setTargetProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [attaching, setAttaching] = useState(false);
+
+  // File picking and uploading handler
+  const handlePickDocument = async () => {
+    try {
+      setAttaching(true);
+      const res = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+      });
+
+      if (res.canceled || !res.assets || res.assets.length === 0) {
+        setAttaching(false);
+        return;
+      }
+
+      const fileAsset = res.assets[0];
+      const localUri = fileAsset.uri;
+      const name = fileAsset.name || 'meal_plan.pdf';
+
+      console.log('[Chat] Picked file:', name, 'uri:', localUri);
+
+      // Upload to Firebase Storage if online
+      let finalUrl = localUri;
+      if (storage && user?.uid && id) {
+        try {
+          const response = await fetch(localUri);
+          const blob = await response.blob();
+          const storageRef = ref(storage, `chats/${id}/documents/${Date.now()}_${name}`);
+          await uploadBytes(storageRef, blob);
+          finalUrl = await getDownloadURL(storageRef);
+          console.log('[Chat] File uploaded successfully to Firebase Storage:', finalUrl);
+        } catch (storageErr) {
+          console.warn('[Chat] Firebase Storage upload error, falling back to local uri:', storageErr);
+        }
+      }
+
+      // Send document message with file details
+      await sendMessage(id!, '', finalUrl, name, 'pdf');
+      
+      // Auto scroll
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    } catch (err) {
+      console.warn('[Chat] File picking/upload failed:', err);
+      Alert.alert('Error', 'Failed to attach file.');
+    } finally {
+      setAttaching(false);
+    }
+  };
 
   const thread = threads.find((t) => t.id === id);
   const messages = allMessages[id as string] || [];
@@ -105,6 +159,10 @@ export default function ChatScreen() {
   const displaySubtitle = targetProfile?.bio || thread?.subtitle || 'Athlete';
   const displayAvatar = targetProfile?.avatar || thread?.avatar;
   const isOnline = targetProfile?.isOnline || thread?.isOnline || false;
+  // Find the latest PDF message in this conversation for the active meal plan banner
+  const latestPdfMsg = [...messages]
+    .reverse()
+    .find((m) => m.fileType === 'pdf' || m.fileName?.toLowerCase().endsWith('.pdf'));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -159,6 +217,30 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
+        {/* Floating Active Meal Plan Banner */}
+        {latestPdfMsg && (
+          <GlassCard style={styles.mealPlanBanner}>
+            <View style={styles.bannerLeft}>
+              <View style={styles.pdfIconContainer}>
+                <FileText size={18} color={COLORS.primary} />
+              </View>
+              <View style={styles.bannerTextContainer}>
+                <Text style={styles.bannerLabel}>Active Meal Plan</Text>
+                <Text style={styles.bannerFileName} numberOfLines={1}>
+                  {latestPdfMsg.fileName || 'Meal Plan.pdf'}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.bannerViewButton}
+              onPress={() => latestPdfMsg.fileUrl && Linking.openURL(latestPdfMsg.fileUrl)}
+            >
+              <Text style={styles.bannerViewText}>View</Text>
+            </TouchableOpacity>
+          </GlassCard>
+        )}
+
         <ScrollView
           ref={scrollViewRef}
           style={styles.messageList}
@@ -203,16 +285,38 @@ export default function ChatScreen() {
                   style={[
                     styles.bubble,
                     isMe ? styles.myBubble : styles.theirBubble,
+                    msg.fileUrl ? styles.fileBubble : null,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.bubbleText,
-                      isMe ? styles.myBubbleText : styles.theirBubbleText,
-                    ]}
-                  >
-                    {msg.text}
-                  </Text>
+                  {msg.fileUrl ? (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => Linking.openURL(msg.fileUrl!)}
+                      style={styles.fileContainer}
+                    >
+                      <View style={styles.fileIconWrapper}>
+                        <FileText size={20} color={isMe ? '#000000' : COLORS.primary} />
+                      </View>
+                      <View style={styles.fileMeta}>
+                        <Text style={[styles.fileNameText, isMe ? styles.myFileNameText : styles.theirFileNameText]} numberOfLines={1}>
+                          {msg.fileName || 'document.pdf'}
+                        </Text>
+                        <Text style={styles.fileSizeText}>
+                          PDF Document
+                        </Text>
+                      </View>
+                      <ExternalLink size={14} color={isMe ? 'rgba(0,0,0,0.5)' : COLORS.textMuted} style={{ marginLeft: 8 }} />
+                    </TouchableOpacity>
+                  ) : (
+                    <Text
+                      style={[
+                        styles.bubbleText,
+                        isMe ? styles.myBubbleText : styles.theirBubbleText,
+                      ]}
+                    >
+                      {msg.text}
+                    </Text>
+                  )}
                 </View>
               </View>
             );
@@ -230,8 +334,17 @@ export default function ChatScreen() {
 
         {/* Input Bar */}
         <View style={styles.inputBar}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.inputAction}>
-            <Paperclip size={18} color={COLORS.textMuted} />
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            style={styles.inputAction}
+            onPress={handlePickDocument}
+            disabled={attaching}
+          >
+            {attaching ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <Paperclip size={18} color={COLORS.textMuted} />
+            )}
           </TouchableOpacity>
           <View style={styles.inputWrapper}>
             <TextInput
@@ -511,5 +624,94 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
+  },
+  // Floating banner and file attachment styles
+  mealPlanBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 8,
+    borderRadius: 12,
+  },
+  bannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  pdfIconContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: 'rgba(204, 255, 0, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bannerTextContainer: {
+    flex: 1,
+    gap: 2,
+  },
+  bannerLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    letterSpacing: 1,
+  },
+  bannerFileName: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  bannerViewButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: COLORS.primary,
+  },
+  bannerViewText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  fileBubble: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+  fileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 160,
+    maxWidth: 240,
+    padding: 6,
+  },
+  fileIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  fileMeta: {
+    flex: 1,
+    gap: 1,
+  },
+  fileNameText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  myFileNameText: {
+    color: '#000000',
+  },
+  theirFileNameText: {
+    color: COLORS.textPrimary,
+  },
+  fileSizeText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
   },
 });

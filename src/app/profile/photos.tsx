@@ -13,7 +13,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import { ChevronLeft, Camera, Trash2, X, Plus, Calendar, Image as ImageIcon } from 'lucide-react-native';
+import { ChevronLeft, Camera, Trash2, X, Plus, Calendar, Image as ImageIcon, ChevronDown, ChevronRight } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
@@ -116,6 +116,56 @@ export default function ProgressPhotosScreen() {
   const [uploadDate, setUploadDate] = useState('');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
+
+  // Custom Calendar Generator Logic
+  const getCalendarDays = () => {
+    const year = currentCalendarMonth.getFullYear();
+    const month = currentCalendarMonth.getMonth();
+
+    // First day of current month
+    const firstDay = new Date(year, month, 1);
+    const startOffset = firstDay.getDay(); // 0 is Sun, 6 is Sat
+
+    // Total days in current month
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    const days = [];
+
+    // Add empty slots for start offset days
+    for (let i = 0; i < startOffset; i++) {
+      days.push(null);
+    }
+
+    // Add actual days
+    for (let day = 1; day <= totalDays; day++) {
+      days.push(day);
+    }
+
+    return days;
+  };
+
+  const calendarMonthLabel = () => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[currentCalendarMonth.getMonth()]} ${currentCalendarMonth.getFullYear()}`;
+  };
+
+  const handleNextMonth = () => {
+    setCurrentCalendarMonth(new Date(currentCalendarMonth.getFullYear(), currentCalendarMonth.getMonth() + 1, 1));
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentCalendarMonth(new Date(currentCalendarMonth.getFullYear(), currentCalendarMonth.getMonth() - 1, 1));
+  };
+
+  const handleSelectDay = (day: number) => {
+    const yyyy = currentCalendarMonth.getFullYear();
+    const mm = String(currentCalendarMonth.getMonth() + 1).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    setUploadDate(`${yyyy}-${mm}-${dd}`);
+    setShowCalendar(false);
+  };
 
   // Viewer state
   const [selectedPhoto, setSelectedPhoto] = useState<ProgressPhoto | null>(null);
@@ -236,6 +286,7 @@ export default function ProgressPhotosScreen() {
     setUploadDate(`${yyyy}-${mm}-${dd}`);
     setSelectedImageUri(null);
     setUploadAngle('front');
+    setShowCalendar(false);
     setUploadModalVisible(true);
   };
 
@@ -436,20 +487,71 @@ export default function ProgressPhotosScreen() {
             </View>
 
             <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
-              {/* Date Input */}
+              {/* Date Selection Trigger */}
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>DATE (YYYY-MM-DD)</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={styles.formLabel}>DATE</Text>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.inputWrapper}
+                  onPress={() => setShowCalendar(!showCalendar)}
+                >
                   <Calendar size={16} color={colors.textMuted} style={{ marginRight: 8 }} />
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="2026-05-18"
-                    placeholderTextColor="rgba(255,255,255,0.3)"
-                    value={uploadDate}
-                    onChangeText={setUploadDate}
-                  />
-                </View>
+                  <Text style={styles.dateSelectorText}>{getFormattedDate(uploadDate) || 'Choose Date'}</Text>
+                  <ChevronDown size={14} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
               </View>
+
+              {/* Custom Inline Calendar */}
+              {showCalendar && (
+                <GlassCard style={styles.calendarContainer}>
+                  {/* Month header navigation */}
+                  <View style={styles.calendarMonthHeader}>
+                    <TouchableOpacity onPress={handlePrevMonth} style={styles.calendarNavBtn}>
+                      <ChevronLeft size={16} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                    <Text style={styles.calendarMonthText}>{calendarMonthLabel()}</Text>
+                    <TouchableOpacity onPress={handleNextMonth} style={styles.calendarNavBtn}>
+                      <ChevronRight size={16} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Days header list */}
+                  <View style={styles.calendarWeekRow}>
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w, i) => (
+                      <Text key={i} style={styles.calendarWeekText}>{w}</Text>
+                    ))}
+                  </View>
+
+                  {/* Days calendar cells grid */}
+                  <View style={styles.calendarGrid}>
+                    {getCalendarDays().map((day, idx) => {
+                      if (day === null) {
+                        return <View key={idx} style={styles.calendarDayCell} />;
+                      }
+                      
+                      const checkDateStr = `${currentCalendarMonth.getFullYear()}-${String(currentCalendarMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                      const isSelected = checkDateStr === uploadDate;
+
+                      return (
+                        <TouchableOpacity
+                          key={idx}
+                          activeOpacity={0.8}
+                          style={[
+                            styles.calendarDayCell,
+                            styles.calendarDayBtn,
+                            isSelected && styles.calendarDayBtnActive,
+                          ]}
+                          onPress={() => handleSelectDay(day)}
+                        >
+                          <Text style={[styles.calendarDayText, isSelected && styles.calendarDayTextActive]}>
+                            {day}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </GlassCard>
+              )}
 
               {/* Angle selector */}
               <View style={styles.formGroup}>
@@ -1010,5 +1112,64 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     width: '100%',
     borderRadius: 6,
     backgroundColor: '#EAEAEA',
+  },
+  // Calendar specific styles
+  dateSelectorText: {
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+  calendarContainer: {
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    padding: 12,
+    borderRadius: 10,
+    gap: 10,
+  },
+  calendarMonthHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  calendarNavBtn: {
+    padding: 6,
+  },
+  calendarMonthText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  calendarWeekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  calendarWeekText: {
+    width: (width - 100) / 7,
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: colors.textMuted,
+  },
+  calendarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  calendarDayCell: {
+    width: (width - 92) / 7,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarDayBtn: {
+    borderRadius: 18,
+  },
+  calendarDayBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  calendarDayText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  calendarDayTextActive: {
+    color: colors.textAccent,
   },
 });
