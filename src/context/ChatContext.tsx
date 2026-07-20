@@ -28,6 +28,9 @@ export interface ChatMessage {
   senderAvatar?: string;
   time: any; // Timestamp or formatted time string
   isPinned?: boolean;
+  fileUrl?: string;
+  fileName?: string;
+  fileType?: string;
 }
 
 export interface ChatThread {
@@ -50,7 +53,13 @@ interface ChatContextType {
   threads: ChatThread[];
   messages: Record<string, ChatMessage[]>;
   loading: boolean;
-  sendMessage: (chatId: string, text: string) => Promise<void>;
+  sendMessage: (
+    chatId: string, 
+    text: string, 
+    fileUrl?: string, 
+    fileName?: string, 
+    fileType?: string
+  ) => Promise<void>;
   startChatWithUser: (targetUser: { uid: string; name: string; username: string; avatar?: string; bio?: string }) => Promise<string>;
   searchUsers: (searchQuery: string) => Promise<any[]>;
   markAsRead: (chatId: string) => Promise<void>;
@@ -311,6 +320,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           senderAvatar: data.senderAvatar,
           time: formattedTime,
           isPinned: data.isPinned || false,
+          fileUrl: data.fileUrl || undefined,
+          fileName: data.fileName || undefined,
+          fileType: data.fileType || undefined,
         });
       });
 
@@ -335,28 +347,35 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [threads]);
 
   // Send Message
-  const sendMessage = async (chatId: string, text: string) => {
+  const sendMessage = async (
+    chatId: string, 
+    text: string, 
+    fileUrl?: string, 
+    fileName?: string, 
+    fileType?: string
+  ) => {
     if (!user) return;
     const cleanText = text.trim();
-    if (!cleanText) return;
+    if (!cleanText && !fileUrl) return;
 
     try {
       const messagesRef = collection(db, 'chats', chatId, 'messages');
       const now = new Date();
 
       await addDoc(messagesRef, {
-        text: cleanText,
+        text: cleanText || `Sent a document: ${fileName}`,
         senderId: user.uid,
         senderName: userData?.name || 'Pulse Athlete',
         time: Timestamp.fromDate(now),
+        ...(fileUrl ? { fileUrl, fileName, fileType } : {}),
       });
 
       // Update the main thread document
       const threadRef = doc(db, 'chats', chatId);
       const thread = threads.find(t => t.id === chatId);
-      const lastMsgLabel = thread?.type === 'group' 
-        ? `${userData?.name || 'Athlete'}: ${cleanText}` 
-        : cleanText;
+      const lastMsgLabel = fileUrl 
+        ? `${userData?.name || 'Athlete'} sent a document: ${fileName}`
+        : (thread?.type === 'group' ? `${userData?.name || 'Athlete'}: ${cleanText}` : cleanText);
 
       await updateDoc(threadRef, {
         lastMessage: lastMsgLabel,
