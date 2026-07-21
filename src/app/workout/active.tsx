@@ -217,6 +217,8 @@ export default function ActiveWorkoutScreen() {
           time: sessionTime,
           completedSets: completedSetsCount,
           completedAt: serverTimestamp(),
+          weights: setWeights,
+          reps: setReps,
         });
 
         // Write notification for the client's assigned trainer

@@ -50,6 +50,7 @@ export const TrainerClients: React.FC = () => {
   const [targetReps, setTargetReps] = useState('10');
   const [targetWeight, setTargetWeight] = useState('0');
   const [assigning, setAssigning] = useState(false);
+  const [workoutName, setWorkoutName] = useState('1 - Upper');
 
   // Active client assignments state
   const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
@@ -197,6 +198,7 @@ export const TrainerClients: React.FC = () => {
         unit: clientWeightUnit,
         assignedBy: user.uid,
         assignedAt: serverTimestamp(),
+        workoutName: workoutName.trim() || 'Trainer Workout',
       });
 
       // Establish trainer relationship on client's user document
@@ -373,6 +375,17 @@ export const TrainerClients: React.FC = () => {
               </View>
             </View>
 
+            <View style={{ marginBottom: 16 }}>
+              <Text style={styles.formLabel}>WORKOUT NAME / GROUP</Text>
+              <TextInput
+                style={styles.formInput}
+                placeholder="e.g. 1 - Upper, Push Day, Leg Day"
+                placeholderTextColor={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
+                value={workoutName}
+                onChangeText={setWorkoutName}
+              />
+            </View>
+
             <View style={styles.inputsRow}>
               <View style={styles.inputCol}>
                 <Text style={styles.formLabel}>TARGET SETS</Text>
@@ -440,7 +453,7 @@ export const TrainerClients: React.FC = () => {
                       <View>
                         <Text style={styles.assignmentName}>{asg.name}</Text>
                         <Text style={styles.assignmentMeta}>
-                          {asg.sets} Sets • {asg.reps} Reps • {asg.weight} {asg.unit || 'lbs'}
+                          Workout: {asg.workoutName || 'Trainer Workout'} • {asg.sets} Sets • {asg.reps} Reps • {asg.weight} {asg.unit || 'lbs'}
                         </Text>
                       </View>
                     </View>
