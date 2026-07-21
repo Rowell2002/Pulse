@@ -29,10 +29,34 @@ export default function WorkoutsScreen() {
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
   const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('For You');
 
   const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
+
+  const defaultTrainerWorkouts = [
+    {
+      name: 'Chest Workout',
+      exercises: [
+        { id: 'dumbbell-chest-press', name: 'Dumbbell Chest Press', sets: 4, reps: 10, weight: 20 },
+      ],
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn'
+    },
+    {
+      name: 'Back Workout',
+      exercises: [
+        { id: 'pull-up', name: 'Bodyweight Pull-Up', sets: 4, reps: 8, weight: 0 },
+        { id: 'deadlift', name: 'Conventional Barbell Deadlift', sets: 3, reps: 5, weight: 100 }
+      ],
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs'
+    },
+    {
+      name: 'Legs Workout',
+      exercises: [
+        { id: 'barbell-back-squat', name: 'Barbell Back Squat', sets: 4, reps: 8, weight: 80 },
+      ],
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB'
+    }
+  ];
 
   // Sync client assigned exercises from trainer in real time
   useEffect(() => {
@@ -49,7 +73,7 @@ export default function WorkoutsScreen() {
       (querySnap) => {
         const list: any[] = [];
         querySnap.forEach((docSnap) => {
-          list.push(docSnap.data());
+          list.push({ id: docSnap.id, ...docSnap.data() });
         });
         setAssignedExercises(list);
         setLoadingAssignments(false);
@@ -63,11 +87,41 @@ export default function WorkoutsScreen() {
     return unsubscribe;
   }, [user, userData]);
 
+  const getWorkoutImage = (name: string) => {
+    const lowercaseName = name.toLowerCase();
+    if (lowercaseName.includes('chest') || lowercaseName.includes('bench') || lowercaseName.includes('press')) {
+      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn';
+    }
+    if (lowercaseName.includes('back') || lowercaseName.includes('deadlift') || lowercaseName.includes('pull')) {
+      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs';
+    }
+    if (lowercaseName.includes('leg') || lowercaseName.includes('squat') || lowercaseName.includes('quad')) {
+      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB';
+    }
+    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuAViwHv8c8Oe9bsVKUgCHqIKO0shbrkkNdRJfxTIUuksRoxszVHF8tb7YaU1mEPLpSuYhOCmrVn2F56P3WjEMFxCfNRprbPMbYkB7I7f6v26fqIDWrDFja3ZXBSxbascsi2FV83ZqPClFeVuOpxqXVMTH0k3ZM5_pldFy3MraJUEGv7gzH2grAiRttD0pcDd_86bkayGapAJ4vVKN3pfo4LmC6ePChr97mkstRl4ysNMzlbZjgUTB-FuEekUHiFo8-GLIZYETwzBhAq';
+  };
+
+  // Group assigned exercises by workout name
+  const workoutsGrouped: { [key: string]: any[] } = {};
+  assignedExercises.forEach((asg) => {
+    const name = asg.workoutName || 'Trainer Workout';
+    if (!workoutsGrouped[name]) {
+      workoutsGrouped[name] = [];
+    }
+    workoutsGrouped[name].push(asg);
+  });
+
+  const trainerWorkouts = Object.keys(workoutsGrouped).map((name) => ({
+    name,
+    exercises: workoutsGrouped[name],
+    image: getWorkoutImage(name),
+  }));
+
+  const activeWorkoutsList = trainerWorkouts.length > 0 ? trainerWorkouts : defaultTrainerWorkouts;
+
   if (userData?.role === 'trainer') {
     return <TrainerClients />;
   }
-
-  const categories = ['For You', 'Strength', 'HIIT', 'Yoga', 'Mobility'];
 
   const goals = [
     {
@@ -88,15 +142,22 @@ export default function WorkoutsScreen() {
     },
   ];
 
-  // Dynamically filter programs based on search input and active category selection
+  // Dynamically filter trainer-assigned workouts based on search input
+  const filteredTrainerWorkouts = activeWorkoutsList.filter((workout) => {
+    const matchesSearch =
+      workout.name.toLowerCase().includes(search.toLowerCase()) ||
+      workout.exercises.some((e: any) => e.name.toLowerCase().includes(search.toLowerCase()));
+
+    return matchesSearch;
+  });
+
+  // Dynamically filter programs based on search input selection
   const filteredPrograms = PROGRAMS.filter((program) => {
-    const matchesCategory =
-      activeCategory === 'For You' || program.category === activeCategory;
     const matchesSearch =
       program.title.toLowerCase().includes(search.toLowerCase()) ||
       program.difficulty.toLowerCase().includes(search.toLowerCase()) ||
       program.category.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesSearch;
   });
 
   const handleProgramPress = (program: Program) => {
@@ -138,115 +199,47 @@ export default function WorkoutsScreen() {
             <SlidersHorizontal size={18} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
+        {/* Workout for the Day */}
+        {(() => {
+          const todayWorkout = activeWorkoutsList[0];
+          if (!todayWorkout) return null;
 
-        {/* Category Chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryScroll}
-        >
-          {categories.map((category) => {
-            const isActive = activeCategory === category;
-            return (
-              <TouchableOpacity
-                key={category}
-                activeOpacity={0.8}
-                onPress={() => setActiveCategory(category)}
-                style={[
-                  styles.categoryChip,
-                  isActive && styles.activeCategoryChip,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText,
-                    isActive && styles.activeCategoryText,
-                  ]}
+          return (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Workout for the Day</Text>
+              <GlassCard style={styles.todayCard}>
+                <ImageBackground
+                  source={{ uri: todayWorkout.image }}
+                  style={styles.todayBg}
+                  imageStyle={{ borderRadius: 12 }}
                 >
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* Workouts Assigned by Trainer */}
-        {assignedExercises.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Assigned by Trainer</Text>
-            <View style={styles.programsList}>
-              {assignedExercises.map((asg) => (
-                <GlassCard key={asg.id} style={styles.programCard}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() =>
-                      router.push({
-                        pathname: '/workout/details',
-                        params: { exerciseId: asg.id },
-                      } as any)
-                    }
-                    style={styles.programCardContent}
-                  >
-                    <View style={styles.exerciseIconWrapper}>
-                      <Dumbbell size={22} color={colors.primary} />
-                    </View>
-                    <View style={styles.programMeta}>
-                      <Text style={styles.programTitle}>{asg.name}</Text>
-                      <Text style={styles.programWeek}>
-                        {asg.sets} Sets • {asg.reps} Reps • {asg.weight} {asg.unit || 'lbs'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() =>
-                      router.push({
-                        pathname: '/workout/active',
-                        params: { exerciseId: asg.id },
-                      } as any)
-                    }
-                    style={styles.playIconWrapper}
-                  >
-                    <Play size={18} color={colors.primary} fill={colors.primary} />
-                  </TouchableOpacity>
-                </GlassCard>
-              ))}
+                  <View style={styles.todayOverlay} />
+                  <View style={styles.todayContent}>
+                    <Text style={styles.todayTitle}>{todayWorkout.name}</Text>
+                    <Text style={styles.todayMeta}>
+                      {todayWorkout.exercises.length} Exercise{todayWorkout.exercises.length > 1 ? 's' : ''} • {todayWorkout.exercises.reduce((sum: number, e: any) => sum + (e.sets || 3), 0)} Sets Total
+                    </Text>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/workout/assigned_details',
+                          params: { workoutName: todayWorkout.name },
+                        } as any)
+                      }
+                      style={styles.todayStartBtn}
+                    >
+                      <Play size={14} color="#000000" fill="#000000" />
+                      <Text style={styles.todayStartText}>Start Workout</Text>
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              </GlassCard>
             </View>
-          </View>
-        )}
+          );
+        })()}
 
-        {/* Featured Program Hero (Rendered if matches active filter) */}
-        {filteredPrograms.some(p => p.id === 'elite-strength-2-0') && (
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => router.push({ pathname: '/workout/details', params: { exerciseId: 'barbell-back-squat' } } as any)}
-            style={styles.featuredWrapper}
-          >
-            <Image
-              source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAViwHv8c8Oe9bsVKUgCHqIKO0shbrkkNdRJfxTIUuksRoxszVHF8tb7YaU1mEPLpSuYhOCmrVn2F56P3WjEMFxCfNRprbPMbYkB7I7f6v26fqIDWrDFja3ZXBSxbascsi2FV83ZqPClFeVuOpxqXVMTH0k3ZM5_pldFy3MraJUEGv7gzH2grAiRttD0pcDd_86bkayGapAJ4vVKN3pfo4LmC6ePChr97mkstRl4ysNMzlbZjgUTB-FuEekUHiFo8-GLIZYETwzBhAq',
-              }}
-              style={styles.featuredImage}
-            />
-            <View style={styles.featuredOverlay} />
-            <View style={styles.featuredContent}>
-              <View style={styles.featuredTag}>
-                <Text style={styles.featuredTagText}>FEATURED</Text>
-              </View>
-              <Text style={styles.featuredTitle}>Elite Strength 2.0</Text>
-              <Text style={styles.featuredMeta}>8 Weeks • Advanced • Hypertrophy Focus</Text>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => router.push({ pathname: '/workout/details', params: { exerciseId: 'barbell-back-squat' } } as any)}
-                style={styles.featuredButton}
-              >
-                <Text style={styles.featuredButtonText}>Start Training</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        )}
-
-        {/* My Programs Section */}
+        {/* Training Programs (Lists both Trainer Workouts & standard programs) */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Training Programs</Text>
@@ -258,12 +251,62 @@ export default function WorkoutsScreen() {
             </TouchableOpacity>
           </View>
 
-          {filteredPrograms.length === 0 ? (
+          {filteredTrainerWorkouts.length === 0 && filteredPrograms.length === 0 ? (
             <GlassCard style={styles.emptyCard}>
               <Text style={styles.emptyText}>No programs match your search/category.</Text>
             </GlassCard>
           ) : (
             <View style={styles.programsList}>
+              {/* 1. Workouts Assigned by Trainer */}
+              {filteredTrainerWorkouts.map((group) => {
+                const exerciseNames = group.exercises.map((e: any) => e.name).join(', ');
+                const truncatedNames = exerciseNames.length > 50 
+                  ? exerciseNames.substring(0, 50) + '...' 
+                  : exerciseNames;
+                const totalSets = group.exercises.reduce((sum: number, e: any) => sum + (e.sets || 3), 0);
+
+                return (
+                  <GlassCard key={group.name} style={styles.programCard}>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/workout/assigned_details',
+                          params: { workoutName: group.name },
+                        } as any)
+                      }
+                      style={styles.programCardContent}
+                    >
+                      <View style={styles.exerciseIconWrapper}>
+                        <Dumbbell size={22} color={colors.primary} />
+                      </View>
+                      <View style={styles.programMeta}>
+                        <Text style={styles.programTitle}>{group.name}</Text>
+                        <Text style={styles.programWeek} numberOfLines={1}>
+                          {truncatedNames}
+                        </Text>
+                        <Text style={styles.programWeek}>
+                          {group.exercises.length} Exercise{group.exercises.length > 1 ? 's' : ''} • {totalSets} Sets Total
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/workout/assigned_active',
+                          params: { workoutName: group.name },
+                        } as any)
+                      }
+                      style={styles.playIconWrapper}
+                    >
+                      <Play size={18} color={colors.primary} fill={colors.primary} />
+                    </TouchableOpacity>
+                  </GlassCard>
+                );
+              })}
+
+              {/* 2. Standard Training Programs */}
               {filteredPrograms.map((program) => (
                 <GlassCard key={program.id} style={styles.programCard}>
                   <TouchableOpacity
@@ -296,30 +339,6 @@ export default function WorkoutsScreen() {
               ))}
             </View>
           )}
-        </View>
-
-        {/* Browse by Goal Grid */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Browse by Goal</Text>
-          <View style={styles.goalsGrid}>
-            {goals.map((goal, index) => (
-              <TouchableOpacity
-                key={index}
-                activeOpacity={0.8}
-                style={styles.goalGridWrapper}
-                onPress={() => router.push({ pathname: '/search-filters', params: { goal: goal.title } } as any)}
-              >
-                <ImageBackground
-                  source={{ uri: goal.image }}
-                  style={styles.goalImage}
-                  imageStyle={styles.goalImageRadius}
-                >
-                  <View style={styles.goalOverlay} />
-                  <Text style={styles.goalText}>{goal.title}</Text>
-                </ImageBackground>
-              </TouchableOpacity>
-            ))}
-          </View>
         </View>
       </ScrollView>
     </View>
@@ -580,5 +599,72 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   emptyText: {
     fontSize: 13,
     color: colors.textMuted,
+  },
+  todayCard: {
+    height: 180,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.borderGlass,
+    padding: 0,
+  },
+  todayBg: {
+    width: '100%',
+    height: '100%',
+  },
+  todayOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  todayContent: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    gap: 8,
+  },
+  todayTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.textPrimary,
+  },
+  todayMeta: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    opacity: 0.9,
+  },
+  todayStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 6,
+    marginTop: 4,
+  },
+  todayStartText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.textAccent,
+  },
+  indicatorContainer: {
+    position: 'absolute',
+    bottom: 12,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  indicatorDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  indicatorDotActive: {
+    backgroundColor: colors.primary,
+    width: 14,
   },
 });
