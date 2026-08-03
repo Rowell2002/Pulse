@@ -203,8 +203,8 @@ export default function ChatScreen() {
       : null;
 
   // Filter messages for chat history stream:
-  // Hide old meal plan PDFs from history stream so only the active pinned meal plan is kept.
-  // Regular PDF documents and text messages stay in the history stream!
+  // Meal Plan PDFs do NOT show as message bubbles in the chat message log (they show ONLY in the pinned top banner).
+  // Regular PDF documents and text messages stay in the chat history stream!
   const displayedMessages = messages.filter((msg) => {
     const isMealPlanPdf =
       msg.isMealPlan ||
@@ -214,8 +214,8 @@ export default function ChatScreen() {
           msg.fileName?.toLowerCase().includes('nutrition')));
 
     if (isMealPlanPdf) {
-      // Hide old meal plan PDFs from chat history.
-      return activeMealPlanMsg && msg.id === activeMealPlanMsg.id;
+      // Hide Meal Plan PDFs from chat message list log (they are pinned at the top banner only)
+      return false;
     }
 
     return true;
