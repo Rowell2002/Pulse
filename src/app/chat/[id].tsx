@@ -37,27 +37,53 @@ export default function ChatScreen() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [attaching, setAttaching] = useState(false);
 
-  // File picking and uploading handler
+  // File picking and uploading handler with option suggestion
   const handlePickDocument = async () => {
     try {
-      setAttaching(true);
       const res = await DocumentPicker.getDocumentAsync({
         type: 'application/pdf',
         copyToCacheDirectory: true,
       });
 
       if (res.canceled || !res.assets || res.assets.length === 0) {
-        setAttaching(false);
         return;
       }
 
       const fileAsset = res.assets[0];
       const localUri = fileAsset.uri;
-      const name = fileAsset.name || 'meal_plan.pdf';
+      const name = fileAsset.name || 'document.pdf';
 
       console.log('[Chat] Picked file:', name, 'uri:', localUri);
 
-      // Upload to Firebase Storage if online
+      // Prompt user with suggestion to Pin as Meal Plan or send as regular PDF
+      Alert.alert(
+        'Send PDF Attachment',
+        `Document: "${name}"\n\nHow would you like to send this PDF in the chat?`,
+        [
+          {
+            text: '📌 Pin as Active Meal Plan',
+            onPress: () => processUploadAndSend(localUri, name, true),
+          },
+          {
+            text: '📄 Send as Regular PDF',
+            onPress: () => processUploadAndSend(localUri, name, false),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+        ],
+        { cancelable: true }
+      );
+    } catch (err) {
+      console.warn('[Chat] File picking failed:', err);
+      Alert.alert('Error', 'Failed to pick document.');
+    }
+  };
+
+  const processUploadAndSend = async (localUri: string, name: string, isMealPlan: boolean) => {
+    try {
+      setAttaching(true);
       let finalUrl = localUri;
       if (storage && user?.uid && id) {
         try {
@@ -66,20 +92,20 @@ export default function ChatScreen() {
           const storageRef = ref(storage, `chats/${id}/documents/${Date.now()}_${name}`);
           await uploadBytes(storageRef, blob);
           finalUrl = await getDownloadURL(storageRef);
-          console.log('[Chat] File uploaded successfully to Firebase Storage:', finalUrl);
+          console.log('[Chat] File uploaded to Firebase Storage:', finalUrl);
         } catch (storageErr) {
-          console.warn('[Chat] Firebase Storage upload error, falling back to local uri:', storageErr);
+          console.warn('[Chat] Storage upload fallback to local uri:', storageErr);
         }
       }
 
-      // Send document message with file details
-      await sendMessage(id!, '', finalUrl, name, 'pdf');
+      // Send document message with meal plan flag
+      await sendMessage(id!, '', finalUrl, name, 'pdf', isMealPlan);
       
       // Auto scroll
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
     } catch (err) {
-      console.warn('[Chat] File picking/upload failed:', err);
-      Alert.alert('Error', 'Failed to attach file.');
+      console.warn('[Chat] File send failed:', err);
+      Alert.alert('Error', 'Failed to send file.');
     } finally {
       setAttaching(false);
     }
@@ -159,10 +185,41 @@ export default function ChatScreen() {
   const displaySubtitle = targetProfile?.bio || thread?.subtitle || 'Athlete';
   const displayAvatar = targetProfile?.avatar || thread?.avatar;
   const isOnline = targetProfile?.isOnline || thread?.isOnline || false;
-  // Find the latest PDF message in this conversation for the active meal plan banner
-  const latestPdfMsg = [...messages]
-    .reverse()
-    .find((m) => m.fileType === 'pdf' || m.fileName?.toLowerCase().endsWith('.pdf'));
+
+  // Find all meal plan PDF messages
+  const mealPlanPdfMessages = messages.filter(
+    (m) =>
+      m.isMealPlan ||
+      (m.fileType === 'pdf' &&
+        (m.fileName?.toLowerCase().includes('meal') ||
+          m.fileName?.toLowerCase().includes('diet') ||
+          m.fileName?.toLowerCase().includes('nutrition')))
+  );
+
+  // The latest meal plan PDF is the active pinned meal plan
+  const activeMealPlanMsg =
+    mealPlanPdfMessages.length > 0
+      ? mealPlanPdfMessages[mealPlanPdfMessages.length - 1]
+      : null;
+
+  // Filter messages for chat history stream:
+  // Meal Plan PDFs do NOT show as message bubbles in the chat message log (they show ONLY in the pinned top banner).
+  // Regular PDF documents and text messages stay in the chat history stream!
+  const displayedMessages = messages.filter((msg) => {
+    const isMealPlanPdf =
+      msg.isMealPlan ||
+      (msg.fileType === 'pdf' &&
+        (msg.fileName?.toLowerCase().includes('meal') ||
+          msg.fileName?.toLowerCase().includes('diet') ||
+          msg.fileName?.toLowerCase().includes('nutrition')));
+
+    if (isMealPlanPdf) {
+      // Hide Meal Plan PDFs from chat message list log (they are pinned at the top banner only)
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -218,7 +275,7 @@ export default function ChatScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         {/* Floating Active Meal Plan Banner */}
-        {latestPdfMsg && (
+        {activeMealPlanMsg && (
           <GlassCard style={styles.mealPlanBanner}>
             <View style={styles.bannerLeft}>
               <View style={styles.pdfIconContainer}>
@@ -227,14 +284,14 @@ export default function ChatScreen() {
               <View style={styles.bannerTextContainer}>
                 <Text style={styles.bannerLabel}>Active Meal Plan</Text>
                 <Text style={styles.bannerFileName} numberOfLines={1}>
-                  {latestPdfMsg.fileName || 'Meal Plan.pdf'}
+                  {activeMealPlanMsg.fileName || 'Meal Plan.pdf'}
                 </Text>
               </View>
             </View>
             <TouchableOpacity
               activeOpacity={0.8}
               style={styles.bannerViewButton}
-              onPress={() => latestPdfMsg.fileUrl && Linking.openURL(latestPdfMsg.fileUrl)}
+              onPress={() => activeMealPlanMsg.fileUrl && Linking.openURL(activeMealPlanMsg.fileUrl)}
             >
               <Text style={styles.bannerViewText}>View</Text>
             </TouchableOpacity>
@@ -257,8 +314,9 @@ export default function ChatScreen() {
             <View style={styles.dateLine} />
           </View>
 
-          {messages.map((msg) => {
+          {displayedMessages.map((msg) => {
             const isMe = msg.senderId === user?.uid || msg.senderId === 'me';
+            const isMealPlanItem = msg.isMealPlan || (activeMealPlanMsg && msg.id === activeMealPlanMsg.id);
             return (
               <View
                 key={msg.id}
@@ -302,7 +360,7 @@ export default function ChatScreen() {
                           {msg.fileName || 'document.pdf'}
                         </Text>
                         <Text style={styles.fileSizeText}>
-                          PDF Document
+                          {isMealPlanItem ? '📌 Pinned Meal Plan' : 'PDF Document'}
                         </Text>
                       </View>
                       <ExternalLink size={14} color={isMe ? 'rgba(0,0,0,0.5)' : COLORS.textMuted} style={{ marginLeft: 8 }} />
