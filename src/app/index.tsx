@@ -19,7 +19,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function AuthScreen() {
   const router = useRouter();
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
+  const { signIn, signInWithGoogle, signInWithApple, isAppleSupported } = useAuth();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +27,7 @@ export default function AuthScreen() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null);
 
   const handleSignIn = async () => {
     const input = usernameOrEmail.trim();
@@ -68,7 +69,7 @@ export default function AuthScreen() {
 
   const handleSocialSignIn = async (provider: 'google' | 'apple') => {
     setErrorMsg(null);
-    setIsSubmitting(true);
+    setSocialLoading(provider);
     try {
       if (provider === 'google') {
         await signInWithGoogle();
@@ -78,7 +79,7 @@ export default function AuthScreen() {
     } catch (err: any) {
       setErrorMsg(err.message || 'Social sign in failed.');
     } finally {
-      setIsSubmitting(false);
+      setSocialLoading(null);
     }
   };
 
@@ -220,21 +221,31 @@ export default function AuthScreen() {
               </View>
 
               <View style={styles.socialButtons}>
+                {isAppleSupported && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[styles.socialButton, socialLoading !== null && styles.disabledButton]}
+                    onPress={() => handleSocialSignIn('apple')}
+                    disabled={isSubmitting || socialLoading !== null}
+                  >
+                    {socialLoading === 'apple' ? (
+                      <ActivityIndicator size="small" color={COLORS.textPrimary} />
+                    ) : (
+                      <Text style={styles.socialButtonText}> Apple</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   activeOpacity={0.8}
-                  style={styles.socialButton}
-                  onPress={() => handleSocialSignIn('apple')}
-                  disabled={isSubmitting}
-                >
-                  <Text style={styles.socialButtonText}>Apple</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.socialButton}
+                  style={[styles.socialButton, socialLoading !== null && styles.disabledButton]}
                   onPress={() => handleSocialSignIn('google')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || socialLoading !== null}
                 >
-                  <Text style={styles.socialButtonText}>Google</Text>
+                  {socialLoading === 'google' ? (
+                    <ActivityIndicator size="small" color={COLORS.textPrimary} />
+                  ) : (
+                    <Text style={styles.socialButtonText}>Google</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>

@@ -8,7 +8,8 @@
     "scheme": "pulse",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.app.pulse",
+      "bundleIdentifier": "com.chethanarowell.pulse",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "icon": "./assets/expo.icon",
       "infoPlist": {
         "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts.",
@@ -45,7 +46,14 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1570776787-j2bp0l2h78dc3bdnq5a2n4g9cp2g0oai"
+        }
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true,

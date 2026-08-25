@@ -21,7 +21,7 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle, signInWithApple, isAppleSupported } = useAuth();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -33,6 +33,7 @@ export default function SignUpScreen() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null);
   const [weightUnit, setWeightUnit] = useState<'kg' | 'lbs'>('lbs');
 
   const handleSignUp = async () => {
@@ -87,6 +88,22 @@ export default function SignUpScreen() {
       setErrorMsg(err.message || 'Failed to create your account.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSocialSignUp = async (provider: 'google' | 'apple') => {
+    setErrorMsg(null);
+    setSocialLoading(provider);
+    try {
+      if (provider === 'google') {
+        await signInWithGoogle();
+      } else {
+        await signInWithApple();
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Social sign up failed.');
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -285,9 +302,9 @@ export default function SignUpScreen() {
 
               <TouchableOpacity
                 activeOpacity={0.9}
-                style={[styles.button, isSubmitting && styles.disabledButton]}
+                style={[styles.button, (isSubmitting || socialLoading !== null) && styles.disabledButton]}
                 onPress={handleSignUp}
-                disabled={isSubmitting}
+                disabled={isSubmitting || socialLoading !== null}
               >
                 {isSubmitting ? (
                   <ActivityIndicator size="small" color="#000000" />
@@ -295,6 +312,44 @@ export default function SignUpScreen() {
                   <Text style={styles.buttonText}>Get Started</Text>
                 )}
               </TouchableOpacity>
+            </View>
+
+            {/* Social Authentication */}
+            <View style={styles.socialSection}>
+              <View style={styles.dividerRow}>
+                <View style={styles.divider} />
+                <Text style={styles.socialText}>OR CONTINUE WITH</Text>
+                <View style={styles.divider} />
+              </View>
+
+              <View style={styles.socialButtons}>
+                {isAppleSupported && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[styles.socialButton, socialLoading !== null && styles.disabledButton]}
+                    onPress={() => handleSocialSignUp('apple')}
+                    disabled={isSubmitting || socialLoading !== null}
+                  >
+                    {socialLoading === 'apple' ? (
+                      <ActivityIndicator size="small" color={COLORS.textPrimary} />
+                    ) : (
+                      <Text style={styles.socialButtonText}> Apple</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={[styles.socialButton, socialLoading !== null && styles.disabledButton]}
+                  onPress={() => handleSocialSignUp('google')}
+                  disabled={isSubmitting || socialLoading !== null}
+                >
+                  {socialLoading === 'google' ? (
+                    <ActivityIndicator size="small" color={COLORS.textPrimary} />
+                  ) : (
+                    <Text style={styles.socialButtonText}>Google</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </GlassCard>
 
@@ -473,6 +528,45 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  socialSection: {
+    gap: 16,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  socialText: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1,
+    color: COLORS.textMuted,
+    opacity: 0.4,
+  },
+  socialButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  socialButton: {
+    flex: 1,
+    height: 48,
+    backgroundColor: COLORS.surfaceCard,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  socialButtonText: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
   },
   footerText: {
     fontSize: 11,
