@@ -45,3 +45,4 @@ example
 # Firebase Native Config Files
 google-services.json
 GoogleService-Info.plist
+.env
