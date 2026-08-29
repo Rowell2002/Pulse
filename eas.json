@@ -16,7 +16,12 @@
         "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pulse-f8eab",
         "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pulse-f8eab.firebasestorage.app",
         "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1570776787",
-        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626"
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_IOS_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_ANDROID_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1570776787-2qdbtof5i5ngga1mgo6r5lou8g5hs350.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "1570776787-j2bp0l2h78dc3bdnq5a2n4g9cp2g0oai.apps.googleusercontent.com",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51BTUDGJAJfZb9HEBwDg561ggHpoqGeScS52o9o9x"
       }
     },
     "preview": {
@@ -30,11 +35,29 @@
         "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pulse-f8eab",
         "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pulse-f8eab.firebasestorage.app",
         "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1570776787",
-        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626"
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_IOS_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_ANDROID_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1570776787-2qdbtof5i5ngga1mgo6r5lou8g5hs350.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "1570776787-j2bp0l2h78dc3bdnq5a2n4g9cp2g0oai.apps.googleusercontent.com",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51BTUDGJAJfZb9HEBwDg561ggHpoqGeScS52o9o9x"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBsp3AQ7hx_5C5EordUgv4Fi4gDFjXD0KI",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "pulse-f8eab.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pulse-f8eab",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pulse-f8eab.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "1570776787",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_IOS_APP_ID": "1:1570776787:ios:b525cd24f561bb6a2f1626",
+        "EXPO_PUBLIC_FIREBASE_ANDROID_APP_ID": "1:1570776787:android:412e6ed411d52fb72f1626",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1570776787-2qdbtof5i5ngga1mgo6r5lou8g5hs350.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "1570776787-j2bp0l2h78dc3bdnq5a2n4g9cp2g0oai.apps.googleusercontent.com",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51BTUDGJAJfZb9HEBwDg561ggHpoqGeScS52o9o9x"
+      }
     }
   },
   "submit": {

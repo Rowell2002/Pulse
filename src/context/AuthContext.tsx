@@ -16,6 +16,18 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import { auth, db, isMockMode } from '../config/firebase';
 
+// Interface for Subscription Data
+export interface UserSubscription {
+  status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
+  plan: 'monthly' | 'annual' | 'free_trial';
+  trialStartedAt: string;
+  trialEndsAt: string;
+  currentPeriodEnd?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
 // Interface for User Data stored in Firestore / Mock DB
 export interface UserProfile {
   uid: string;
@@ -28,6 +40,7 @@ export interface UserProfile {
   role?: 'athlete' | 'trainer';
   trainerId?: string;
   selectedGoal?: string | null;
+  subscription?: UserSubscription;
   instagram?: string;
   twitter?: string;
   website?: string;
@@ -58,6 +71,17 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper to compute default 4-month trial
+export function getDefaultFourMonthTrial(fromDate = new Date()): UserSubscription {
+  const trialEnds = new Date(fromDate.getTime() + 120 * 24 * 60 * 60 * 1000); // 120 days = 4 months
+  return {
+    status: 'trialing',
+    plan: 'free_trial',
+    trialStartedAt: fromDate.toISOString(),
+    trialEndsAt: trialEnds.toISOString(),
+  };
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
@@ -111,9 +135,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            setUserData(userDocSnap.data() as UserProfile);
+            const profileData = userDocSnap.data() as UserProfile;
+            // Backfill 4-month trial if missing
+            if (!profileData.subscription) {
+              const defaultTrial = getDefaultFourMonthTrial(
+                profileData.createdAt ? new Date(profileData.createdAt) : new Date()
+              );
+              await updateDoc(userDocRef, { subscription: defaultTrial });
+              profileData.subscription = defaultTrial;
+            }
+            setUserData(profileData);
           } else {
-            // Profile doesn't exist, create a default one
+            // Profile doesn't exist, create a default one with 4 months free trial
+            const now = new Date();
             const newProfile: UserProfile = {
               uid: firebaseUser.uid,
               name: firebaseUser.displayName || 'Pulse Athlete',
@@ -125,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               avatar: firebaseUser.photoURL || undefined,
               role: 'athlete',
               selectedGoal: null,
+              subscription: getDefaultFourMonthTrial(now),
               settings: {
                 pushNotifications: true,
                 emailReports: false,
@@ -132,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 profileVisibility: true,
                 weightUnit: 'lbs',
               },
-              createdAt: new Date().toISOString(),
+              createdAt: now.toISOString(),
             };
             await setDoc(userDocRef, newProfile);
             setUserData(newProfile);
@@ -184,6 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
+      const now = new Date();
 
       // Save additional profile data to Firestore
       const newProfile: UserProfile = {
@@ -194,6 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         bio: 'Pushing boundaries with Pulse.',
         role: 'athlete',
         selectedGoal: null,
+        subscription: getDefaultFourMonthTrial(now),
         settings: {
           pushNotifications: true,
           emailReports: false,
@@ -201,7 +238,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           profileVisibility: true,
           weightUnit: weightUnit,
         },
-        createdAt: new Date().toISOString(),
+        createdAt: now.toISOString(),
       };
 
       await setDoc(doc(db, 'users', firebaseUser.uid), newProfile);
@@ -249,8 +286,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await updateDoc(userDocRef, { avatar: firebaseUser.photoURL });
           existingData.avatar = firebaseUser.photoURL;
         }
+        if (!existingData.subscription) {
+          const defaultTrial = getDefaultFourMonthTrial(
+            existingData.createdAt ? new Date(existingData.createdAt) : new Date()
+          );
+          await updateDoc(userDocRef, { subscription: defaultTrial });
+          existingData.subscription = defaultTrial;
+        }
         setUserData(existingData);
       } else {
+        const now = new Date();
         const googleUser = signInResult.data?.user;
         const newProfile: UserProfile = {
           uid: firebaseUser.uid,
@@ -263,6 +308,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: firebaseUser.photoURL || googleUser?.photo || undefined,
           role: 'athlete',
           selectedGoal: null,
+          subscription: getDefaultFourMonthTrial(now),
           settings: {
             pushNotifications: true,
             emailReports: false,
@@ -270,7 +316,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             profileVisibility: true,
             weightUnit: 'lbs',
           },
-          createdAt: new Date().toISOString(),
+          createdAt: now.toISOString(),
         };
 
         await setDoc(userDocRef, newProfile);
@@ -350,8 +396,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await updateDoc(userDocRef, { name: appleFullName });
           existingData.name = appleFullName;
         }
+        if (!existingData.subscription) {
+          const defaultTrial = getDefaultFourMonthTrial(
+            existingData.createdAt ? new Date(existingData.createdAt) : new Date()
+          );
+          await updateDoc(userDocRef, { subscription: defaultTrial });
+          existingData.subscription = defaultTrial;
+        }
         setUserData(existingData);
       } else {
+        const now = new Date();
         const resolvedName = appleFullName || firebaseUser.displayName || 'Pulse Athlete';
         const resolvedEmail = appleCredential.email || firebaseUser.email || '';
         const newProfile: UserProfile = {
@@ -364,6 +418,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           bio: 'Welcome to Pulse! Push your limits.',
           role: 'athlete',
           selectedGoal: null,
+          subscription: getDefaultFourMonthTrial(now),
           settings: {
             pushNotifications: true,
             emailReports: false,
@@ -371,7 +426,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             profileVisibility: true,
             weightUnit: 'lbs',
           },
-          createdAt: new Date().toISOString(),
+          createdAt: now.toISOString(),
         };
 
         await setDoc(userDocRef, newProfile);
