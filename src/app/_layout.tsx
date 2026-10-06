@@ -7,29 +7,6 @@ import { COLORS } from '../theme/colors';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ChatProvider } from '../context/ChatContext';
 import { SplashScreen } from '../components/SplashScreen';
-import { Alert } from 'react-native';
-
-// Global error handler to help diagnose remote crashes
-if (typeof (global as any).ErrorUtils !== 'undefined') {
-  const defaultHandler = (global as any).ErrorUtils.getGlobalHandler();
-  (global as any).ErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
-    console.error('[Global Error]', error);
-    Alert.alert(
-      'App Crash Caught',
-      `Message: ${error?.message || error}\n\nStack: ${error?.stack?.split('\n').slice(0, 5).join('\n')}`,
-      [
-        {
-          text: 'Dismiss',
-          onPress: () => {
-            if (defaultHandler) {
-              defaultHandler(error, isFatal);
-            }
-          },
-        },
-      ]
-    );
-  });
-}
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, userData, loading } = useAuth();
@@ -49,7 +26,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       segmentList[0] === 'profile' ||
       segmentList[0] === 'notifications' ||
       segmentList[0] === 'search-filters' ||
-      segmentList[0] === 'chat';
+      segmentList[0] === 'chat' ||
+      segmentList[0] === 'subscription';
 
     const isOnboarding = segmentList[0] === 'onboarding';
 
@@ -90,6 +68,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 }
 
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
+import { SubscriptionProvider } from '../context/SubscriptionContext';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 function ThemedAppStack() {
   const { colors } = useTheme();
@@ -105,12 +85,17 @@ function ThemedAppStack() {
       <Stack.Screen name="signup" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="subscription/paywall" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
       <Stack.Screen name="workout/details" />
       <Stack.Screen name="workout/active" />
       <Stack.Screen name="workout/summary" />
+      <Stack.Screen name="workout/assigned_details" />
+      <Stack.Screen name="workout/assigned_active" />
       <Stack.Screen name="profile/edit" />
       <Stack.Screen name="profile/settings" />
       <Stack.Screen name="profile/client-stats" />
+      <Stack.Screen name="profile/weight" />
+      <Stack.Screen name="profile/photos" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="search-filters" />
       <Stack.Screen name="chat/[id]" />
@@ -120,15 +105,24 @@ function ThemedAppStack() {
 }
 
 export default function RootLayout() {
+  const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_51BTUDGJAJfZb9HEBwDg561ggHpoqGeScS52o9o9x';
+
   return (
     <SafeAreaProvider style={{ backgroundColor: '#000000' }}>
-      <AuthProvider>
-        <ThemeProvider>
-          <AuthGuard>
-            <ThemedAppStack />
-          </AuthGuard>
-        </ThemeProvider>
-      </AuthProvider>
+      <StripeProvider
+        publishableKey={stripePublishableKey}
+        merchantIdentifier="merchant.com.chethanarowell.pulse"
+      >
+        <AuthProvider>
+          <SubscriptionProvider>
+            <ThemeProvider>
+              <AuthGuard>
+                <ThemedAppStack />
+              </AuthGuard>
+            </ThemeProvider>
+          </SubscriptionProvider>
+        </AuthProvider>
+      </StripeProvider>
     </SafeAreaProvider>
   );
 }

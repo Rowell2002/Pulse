@@ -14,7 +14,8 @@
       "infoPlist": {
         "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts.",
         "NSCameraUsageDescription": "This app requires access to your camera to take progress photos.",
-        "NSPhotoLibraryUsageDescription": "This app requires access to your photo library to select progress photos."
+        "NSPhotoLibraryUsageDescription": "This app requires access to your photo library to select progress photos.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -53,7 +54,13 @@
           "iosUrlScheme": "com.googleusercontent.apps.1570776787-j2bp0l2h78dc3bdnq5a2n4g9cp2g0oai"
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.chethanarowell.pulse"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

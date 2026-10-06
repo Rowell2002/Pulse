@@ -30,19 +30,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-example
-
 # generated native folders
 /ios
 /android
 
-# Firebase Native Config Files
-google-services.json
-GoogleService-Info.plist
+# local env files
 .env
+.env*.local

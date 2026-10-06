@@ -257,7 +257,7 @@ export default function NotificationsScreen() {
                         <TouchableOpacity
                           activeOpacity={0.8}
                           style={styles.actionBtn}
-                          onPress={() => router.push('/workouts')}
+                          onPress={() => router.push('/(tabs)/workouts' as any)}
                         >
                           <Text style={styles.actionBtnText}>{item.actionText}</Text>
                         </TouchableOpacity>

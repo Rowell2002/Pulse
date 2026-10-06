@@ -20,8 +20,6 @@ import {
   ChevronRight,
   LogOut,
   Crown,
-  Download,
-  Eye,
   Dumbbell,
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
@@ -30,9 +28,12 @@ import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 
+import { useSubscription } from '../../context/SubscriptionContext';
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { userData, signOut, updateProfile } = useAuth();
+  const { subscription, isSubscribed, isInTrial, isTrialExpired, daysLeftInTrial, plan, formattedRenewalDate } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
 
@@ -133,19 +134,52 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Subscription Premium Card */}
-        <GlassCard style={styles.premiumCard} active>
+        {/* Subscription / Membership Card */}
+        <GlassCard style={styles.premiumCard} active={isSubscribed}>
           <View style={styles.premiumGlow} />
           <View style={styles.premiumTop}>
             <View style={styles.premiumLeft}>
-              <Text style={styles.premiumPlanLabel}>CURRENT PLAN</Text>
-              <Text style={styles.premiumPlanName}>Elite Performer</Text>
-              <Text style={styles.premiumRenewal}>Renewal on Sept 12, 2024</Text>
+              <Text style={styles.premiumPlanLabel}>MEMBERSHIP</Text>
+              <Text style={styles.premiumPlanName}>
+                {subscription?.status === 'active'
+                  ? plan === 'annual'
+                    ? 'Annual Membership'
+                    : 'Monthly Membership'
+                  : isInTrial && !isTrialExpired
+                  ? '4-Month Free Trial'
+                  : 'Membership Expired'}
+              </Text>
+              <Text style={styles.premiumRenewal}>
+                {subscription?.status === 'active'
+                  ? `Renews on ${formattedRenewalDate}`
+                  : isInTrial && !isTrialExpired
+                  ? `Active — ${daysLeftInTrial} days remaining`
+                  : 'Renew to continue your membership'}
+              </Text>
             </View>
-            <Crown size={28} color={colors.primary} fill={isDark ? "rgba(204,255,0,0.15)" : "rgba(118,158,0,0.15)"} />
+            <Crown
+              size={28}
+              color={isSubscribed ? colors.primary : colors.textMuted}
+              fill={isSubscribed ? (isDark ? 'rgba(204,255,0,0.15)' : 'rgba(118,158,0,0.15)') : 'transparent'}
+            />
           </View>
-          <TouchableOpacity activeOpacity={0.85} style={styles.manageSubButton}>
-            <Text style={styles.manageSubText}>Manage Subscription</Text>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={[styles.manageSubButton, !isSubscribed && { backgroundColor: colors.primary }]}
+            onPress={() => router.push('/subscription/paywall' as any)}
+          >
+            <Text
+              style={[
+                styles.manageSubText,
+                !isSubscribed && { color: '#000000', fontWeight: '800' },
+              ]}
+            >
+              {subscription?.status === 'active'
+                ? 'Manage Membership'
+                : isInTrial && !isTrialExpired
+                ? 'View Membership Options ($119.99/mo)'
+                : 'Continue with Monthly ($119.99/mo)'}
+            </Text>
           </TouchableOpacity>
         </GlassCard>
 
@@ -163,12 +197,27 @@ export default function SettingsScreen() {
               icon={<Mail size={18} color={colors.textMuted} />}
               label="Email & Sign In"
               bordered
-              onPress={() => {}}
+              onPress={() => {
+                Alert.alert(
+                  'Account Sign In',
+                  `Signed in as: ${userData?.email || 'Authenticated User'}\n\nTo update your profile details or username, tap Edit Profile.`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Edit Profile', onPress: () => router.push('/profile/edit') },
+                  ]
+                );
+              }}
             />
             <RowLink
               icon={<Smartphone size={18} color={colors.textMuted} />}
               label="Device & Sync"
-              onPress={() => {}}
+              onPress={() => {
+                Alert.alert(
+                  'Device & Sensors Connected',
+                  'Your motion pedometer and Apple Health data sync automatically in the background.',
+                  [{ text: 'OK' }]
+                );
+              }}
             />
           </GlassCard>
         </View>
@@ -242,41 +291,13 @@ export default function SettingsScreen() {
                   <Text style={styles.rowDescription}>Select preferred weight unit</Text>
                 </View>
               </View>
-              <View style={weightUnit === 'kg' ? styles.publicBadge : styles.privateBadge}>
-                <Text style={weightUnit === 'kg' ? styles.publicBadgeText : styles.privateBadgeText}>
-                  {weightUnit.toUpperCase()}
-                </Text>
+              <View style={styles.rowRightControl}>
+                <View style={weightUnit === 'kg' ? styles.publicBadge : styles.privateBadge}>
+                  <Text style={weightUnit === 'kg' ? styles.publicBadgeText : styles.privateBadgeText}>
+                    {weightUnit.toUpperCase()}
+                  </Text>
+                </View>
               </View>
-            </TouchableOpacity>
-          </GlassCard>
-        </View>
-
-        {/* Privacy Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PRIVACY</Text>
-          <GlassCard style={styles.listCard}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.rowItem}
-              onPress={() => handleToggleSetting('profileVisibility', !settings.profileVisibility)}
-            >
-              <View style={styles.rowLeft}>
-                <Eye size={18} color={colors.textMuted} />
-                <Text style={styles.rowLabel}>Profile Visibility</Text>
-              </View>
-              <View style={settings.profileVisibility ? styles.publicBadge : styles.privateBadge}>
-                <Text style={settings.profileVisibility ? styles.publicBadgeText : styles.privateBadgeText}>
-                  {settings.profileVisibility ? 'PUBLIC' : 'PRIVATE'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity activeOpacity={0.8} style={styles.rowItem}>
-              <View style={styles.rowLeft}>
-                <Download size={18} color={colors.textMuted} />
-                <Text style={styles.rowLabel}>Export Personal Data</Text>
-              </View>
-              <Download size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </GlassCard>
         </View>
@@ -293,12 +314,14 @@ export default function SettingsScreen() {
                   <Text style={styles.rowDescription}>Access dashboard & client controls</Text>
                 </View>
               </View>
-              <Switch
-                value={userData?.role === 'trainer'}
-                onValueChange={handleToggleTrainerRole}
-                trackColor={{ false: '#3E3E3E', true: colors.primary }}
-                thumbColor={userData?.role === 'trainer' ? '#000000' : '#888888'}
-              />
+              <View style={styles.rowRightControl}>
+                <Switch
+                  value={userData?.role === 'trainer'}
+                  onValueChange={handleToggleTrainerRole}
+                  trackColor={{ false: '#3E3E3E', true: colors.primary }}
+                  thumbColor={userData?.role === 'trainer' ? '#000000' : '#888888'}
+                />
+              </View>
             </View>
           </GlassCard>
         </View>
@@ -344,7 +367,9 @@ function RowLink({
           {icon}
           <Text style={styles.rowLabel}>{label}</Text>
         </View>
-        <ChevronRight size={16} color={colors.textMuted} />
+        <View style={styles.rowRightControl}>
+          <ChevronRight size={16} color={colors.textMuted} />
+        </View>
       </TouchableOpacity>
       {bordered && <View style={styles.divider} />}
     </>
@@ -378,12 +403,14 @@ function ToggleRow({
             <Text style={styles.rowDescription}>{description}</Text>
           </View>
         </View>
-        <Switch
-          value={value}
-          onValueChange={onValueChange}
-          trackColor={{ false: '#3E3E3E', true: colors.primary }}
-          thumbColor={value ? '#000000' : '#888888'}
-        />
+        <View style={styles.rowRightControl}>
+          <Switch
+            value={value}
+            onValueChange={onValueChange}
+            trackColor={{ false: '#3E3E3E', true: colors.primary }}
+            thumbColor={value ? '#000000' : '#888888'}
+          />
+        </View>
       </View>
       {bordered && <View style={styles.divider} />}
     </>
@@ -487,19 +514,28 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     paddingVertical: 4,
   },
   rowItem: {
-    height: 56,
+    minHeight: 56,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
   rowLeft: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    paddingRight: 12,
   },
   rowMeta: {
+    flex: 1,
     gap: 2,
+  },
+  rowRightControl: {
+    minWidth: 52,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   rowLabel: {
     fontSize: 15,
@@ -509,6 +545,7 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   rowDescription: {
     fontSize: 11,
     color: colors.textMuted,
+    lineHeight: 15,
   },
   publicBadge: {
     paddingHorizontal: 8,

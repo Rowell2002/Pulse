@@ -5,6 +5,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-google-signin/google-signin": "^16.1.4",
+    "@stripe/stripe-react-native": "0.50.3",
     "expo": "~54.0.8",
     "expo-apple-authentication": "~8.0.8",
     "expo-constants": "~18.0.13",
@@ -22,6 +23,7 @@
     "expo-web-browser": "~15.0.11",
     "firebase": "^12.14.0",
     "lucide-react-native": "^1.17.0",
+    "patch-package": "^8.0.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -39,6 +41,7 @@
     "typescript": "~5.9.2"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "start": "expo start",
     "dev": "expo start",
     "reset-project": "node ./scripts/reset-project.js",

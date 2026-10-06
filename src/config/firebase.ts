@@ -15,7 +15,10 @@ const firebaseConfig = {
   projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  appId:
+    Platform.OS === 'ios'
+      ? (process.env.EXPO_PUBLIC_FIREBASE_IOS_APP_ID || process.env.EXPO_PUBLIC_FIREBASE_APP_ID)
+      : (process.env.EXPO_PUBLIC_FIREBASE_ANDROID_APP_ID || process.env.EXPO_PUBLIC_FIREBASE_APP_ID),
 };
 
 // Check if credentials are set (not empty, not undefined, and not placeholders)

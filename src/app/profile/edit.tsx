@@ -14,11 +14,13 @@ import {
   Alert,
 } from 'react-native';
 import { ArrowLeft, Camera, Link, Share2, Globe, Lock, ChevronRight } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { COLORS } from '../../theme/colors';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
-import { db } from '../../config/firebase';
+import { db, storage } from '../../config/firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 export default function EditProfileScreen() {
@@ -34,12 +36,92 @@ export default function EditProfileScreen() {
   const [website, setWebsite] = useState(userData?.website || '');
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const avatarInputRef = React.useRef<TextInput>(null);
-
-  const handleFocusAvatarInput = () => {
-    avatarInputRef.current?.focus();
-  };
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Launch Native Photo Choice (Library / Camera)
+  const handleChangePhoto = () => {
+    Alert.alert('Profile Photo', 'Choose an option to update your photo', [
+      {
+        text: 'Take Photo',
+        onPress: handleTakePhoto,
+      },
+      {
+        text: 'Choose from Library',
+        onPress: handlePickImage,
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+    ]);
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Needed', 'Please grant photo library access to change your avatar.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        await processAndSetAvatar(result.assets[0].uri);
+      }
+    } catch (e: any) {
+      console.warn('[EditProfile] Error picking image:', e);
+      Alert.alert('Error', 'Failed to open image library.');
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Needed', 'Please grant camera access to take a profile photo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        await processAndSetAvatar(result.assets[0].uri);
+      }
+    } catch (e: any) {
+      console.warn('[EditProfile] Error taking photo:', e);
+      Alert.alert('Error', 'Failed to open camera.');
+    }
+  };
+
+  const processAndSetAvatar = async (localUri: string) => {
+    setAvatar(localUri);
+    if (storage && userData?.uid) {
+      setIsUploadingPhoto(true);
+      try {
+        const response = await fetch(localUri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `users/${userData.uid}/avatar_${Date.now()}.jpg`);
+        await uploadBytes(storageRef, blob);
+        const downloadUrl = await getDownloadURL(storageRef);
+        setAvatar(downloadUrl);
+      } catch (err) {
+        console.warn('[EditProfile] Storage upload notice, using local preview:', err);
+      } finally {
+        setIsUploadingPhoto(false);
+      }
+    }
+  };
 
   const handleSave = async () => {
     const trimmedName = fullName.trim();
@@ -135,7 +217,12 @@ export default function EditProfileScreen() {
         >
           {/* Profile Photo Section */}
           <View style={styles.photoSection}>
-            <View style={styles.avatarWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={handleChangePhoto}
+              disabled={isSaving || isUploadingPhoto}
+              style={styles.avatarWrapper}
+            >
               <View style={styles.avatarBorder}>
                 <Image
                   source={{
@@ -143,18 +230,24 @@ export default function EditProfileScreen() {
                   }}
                   style={styles.avatarImage}
                 />
+                {isUploadingPhoto && (
+                  <View style={styles.uploadingOverlay}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                )}
               </View>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                style={styles.cameraButton}
-                disabled={isSaving}
-                onPress={handleFocusAvatarInput}
-              >
+              <View style={styles.cameraButton}>
                 <Camera size={16} color="#000000" />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity activeOpacity={0.8} disabled={isSaving} onPress={handleFocusAvatarInput}>
-              <Text style={styles.changePhotoText}>Change Photo</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              disabled={isSaving || isUploadingPhoto}
+              onPress={handleChangePhoto}
+            >
+              <Text style={styles.changePhotoText}>
+                {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -198,29 +291,6 @@ export default function EditProfileScreen() {
                   onBlur={() => setFocusedField(null)}
                   placeholderTextColor={COLORS.textMuted}
                   editable={!isSaving}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Profile Photo URL</Text>
-              <View
-                style={[
-                  styles.inputWrapper,
-                  focusedField === 'avatar' && styles.inputFocused,
-                ]}
-              >
-                <TextInput
-                  ref={avatarInputRef}
-                  style={styles.input}
-                  value={avatar}
-                  onChangeText={setAvatar}
-                  onFocus={() => setFocusedField('avatar')}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="https://example.com/avatar.jpg"
-                  placeholderTextColor={COLORS.textMuted}
-                  editable={!isSaving}
-                  autoCapitalize="none"
                 />
               </View>
             </View>
@@ -410,6 +480,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.primary,
     overflow: 'hidden',
+  },
+  uploadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarImage: {
     width: '100%',
