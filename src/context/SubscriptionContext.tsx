@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useAuth, UserSubscription } from './AuthContext';
-import { processStripeSubscription, SUBSCRIPTION_PLANS, PlanConfig } from '../services/stripeService';
+import { processStripeSubscription, SUBSCRIPTION_PLANS, PlanConfig, PlanTier } from '../services/stripeService';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -10,10 +10,10 @@ interface SubscriptionContextType {
   isInTrial: boolean;
   isTrialExpired: boolean;
   daysLeftInTrial: number;
-  plan: 'monthly' | 'annual' | 'free_trial' | null;
+  plan: 'starter' | 'transform' | 'vip' | 'monthly' | 'annual' | 'free_trial' | null;
   formattedRenewalDate: string | null;
-  plans: Record<'monthly' | 'annual', PlanConfig>;
-  subscribe: (planId: 'monthly' | 'annual') => Promise<{ success: boolean; error?: string }>;
+  plans: Record<string, PlanConfig>;
+  subscribe: (planId: PlanTier | string) => Promise<{ success: boolean; error?: string }>;
   cancelSubscription: () => Promise<void>;
 }
 
@@ -75,7 +75,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [subscription]);
 
   // Trigger Stripe Payment Sheet subscription
-  const subscribe = async (planId: 'monthly' | 'annual') => {
+  const subscribe = async (planId: PlanTier | string) => {
     if (!userData || !user) {
       return { success: false, error: 'User must be signed in to subscribe.' };
     }

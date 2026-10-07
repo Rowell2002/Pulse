@@ -19,7 +19,7 @@ import { auth, db, isMockMode } from '../config/firebase';
 // Interface for Subscription Data
 export interface UserSubscription {
   status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
-  plan: 'monthly' | 'annual' | 'free_trial';
+  plan: 'starter' | 'transform' | 'vip' | 'monthly' | 'annual' | 'free_trial';
   trialStartedAt: string;
   trialEndsAt: string;
   currentPeriodEnd?: string;

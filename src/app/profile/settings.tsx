@@ -142,9 +142,15 @@ export default function SettingsScreen() {
               <Text style={styles.premiumPlanLabel}>MEMBERSHIP</Text>
               <Text style={styles.premiumPlanName}>
                 {subscription?.status === 'active'
-                  ? plan === 'annual'
-                    ? 'Annual Membership'
-                    : 'Monthly Membership'
+                  ? plan === 'starter'
+                    ? 'Starter Plan ($19.99/mo)'
+                    : plan === 'transform'
+                    ? 'Transform Plan ($39.99/mo)'
+                    : plan === 'vip' || plan === 'monthly'
+                    ? 'VIP 1ON1 Plan ($119.99/mo)'
+                    : plan === 'annual'
+                    ? 'VIP 1ON1 (Annual)'
+                    : 'Personalized Fitness Plan'
                   : isInTrial && !isTrialExpired
                   ? '4-Month Free Trial'
                   : 'Membership Expired'}
@@ -177,8 +183,8 @@ export default function SettingsScreen() {
               {subscription?.status === 'active'
                 ? 'Manage Membership'
                 : isInTrial && !isTrialExpired
-                ? 'View Membership Options ($119.99/mo)'
-                : 'Continue with Monthly ($119.99/mo)'}
+                ? 'View Personalized Fitness Plans'
+                : 'Choose a Fitness Plan'}
             </Text>
           </TouchableOpacity>
         </GlassCard>
