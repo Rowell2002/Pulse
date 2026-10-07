@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -20,6 +21,7 @@ import {
   Sparkles,
   Zap,
   Crown,
+  Tag,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
@@ -36,13 +38,41 @@ export default function PaywallScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
-  const { isInTrial, isTrialExpired, daysLeftInTrial, subscribe } = useSubscription();
+  const { subscription, isInTrial, isTrialExpired, daysLeftInTrial, subscribe, applyPromoCode } = useSubscription();
 
   // Selected plan tier (default to 'transform')
   const [selectedPlan, setSelectedPlan] = useState<PlanTier>('transform');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   const activePlanConfig = SUBSCRIPTION_PLANS[selectedPlan] || SUBSCRIPTION_PLANS.transform;
+
+  const handleApplyPromo = async () => {
+    const code = promoCodeInput.trim().toUpperCase();
+    if (!code) {
+      Alert.alert('Promo Code', 'Please enter a promo code.');
+      return;
+    }
+    setIsApplyingPromo(true);
+    try {
+      const res = await applyPromoCode(code);
+      if (res.success) {
+        Alert.alert(
+          '🎉 4-Month Free Access Unlocked!',
+          'Promo code PULSE4FREE was applied successfully! You have 4 months of free Pulse access.',
+          [{ text: 'Great!', onPress: () => router.back() }]
+        );
+        setPromoCodeInput('');
+      } else {
+        Alert.alert('Promo Code Notice', res.error || 'Invalid promo code. Use PULSE4FREE for 4 months free.');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to apply promo code.');
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
 
   const handleSubscribe = async () => {
     setIsProcessing(true);
@@ -119,24 +149,57 @@ export default function PaywallScreen() {
           <Text style={styles.heroSubHeader}>Plan Comparison</Text>
         </View>
 
-        {/* 4-Month Trial Status Banner */}
-        {isInTrial && !isTrialExpired && (
+        {/* Promo Code Section */}
+        {isInTrial && !isTrialExpired ? (
           <GlassCard style={styles.trialBanner} active>
             <View style={styles.trialBannerContent}>
               <View style={styles.trialIconWrapper}>
-                <Clock size={20} color={colors.primary} />
+                <Sparkles size={20} color={colors.primary} />
               </View>
               <View style={styles.trialTextWrapper}>
-                <Text style={styles.trialBannerTitle}>4-Month Free Trial Active</Text>
+                <Text style={styles.trialBannerTitle}>4-Month Free Access Active (PULSE4FREE)</Text>
                 <Text style={styles.trialBannerSubtitle}>
-                  You have <Text style={styles.highlightText}>{daysLeftInTrial} days remaining</Text> in your free trial.
+                  You have <Text style={styles.highlightText}>{daysLeftInTrial} days remaining</Text> in your promo period.
                 </Text>
               </View>
             </View>
           </GlassCard>
+        ) : (
+          <GlassCard style={styles.promoCard}>
+            <View style={styles.promoHeader}>
+              <Tag size={16} color={colors.primary} />
+              <Text style={styles.promoTitle}>Have a Promo Code?</Text>
+            </View>
+            <Text style={styles.promoSubtitle}>
+              Apply code <Text style={styles.promoHighlight}>PULSE4FREE</Text> to get 4 months completely free.
+            </Text>
+            <View style={styles.promoInputRow}>
+              <TextInput
+                style={styles.promoInput}
+                placeholder="Enter PULSE4FREE"
+                placeholderTextColor={colors.textMuted}
+                value={promoCodeInput}
+                onChangeText={setPromoCodeInput}
+                autoCapitalize="characters"
+                autoCorrect={false}
+              />
+              <TouchableOpacity
+                style={[styles.promoApplyBtn, isApplyingPromo && styles.disabledButton]}
+                activeOpacity={0.85}
+                onPress={handleApplyPromo}
+                disabled={isApplyingPromo}
+              >
+                {isApplyingPromo ? (
+                  <ActivityIndicator size="small" color="#000000" />
+                ) : (
+                  <Text style={styles.promoApplyText}>Apply</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </GlassCard>
         )}
 
-        {isTrialExpired && (
+        {isTrialExpired && !isInTrial && (
           <GlassCard style={styles.expiredBanner}>
             <View style={styles.trialBannerContent}>
               <View style={[styles.trialIconWrapper, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
@@ -145,7 +208,7 @@ export default function PaywallScreen() {
               <View style={styles.trialTextWrapper}>
                 <Text style={[styles.trialBannerTitle, { color: '#EF4444' }]}>Free Trial Expired</Text>
                 <Text style={styles.trialBannerSubtitle}>
-                  Select a fitness plan below to continue your training without interruption.
+                  Apply promo code or select a fitness plan below to continue training.
                 </Text>
               </View>
             </View>
@@ -419,7 +482,7 @@ const getStyles = (colors: any, isDark: boolean) =>
     scrollContent: {
       paddingHorizontal: 16,
       paddingVertical: 20,
-      gap: 18,
+      gap: 16,
     },
     heroSection: {
       alignItems: 'center',
@@ -439,6 +502,64 @@ const getStyles = (colors: any, isDark: boolean) =>
       fontWeight: '600',
       textAlign: 'center',
       letterSpacing: 0.2,
+    },
+    promoCard: {
+      padding: 16,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      gap: 8,
+    },
+    promoHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    promoTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: colors.textPrimary,
+    },
+    promoSubtitle: {
+      fontSize: 12,
+      color: colors.textMuted,
+      lineHeight: 16,
+    },
+    promoHighlight: {
+      color: colors.primary,
+      fontWeight: '800',
+    },
+    promoInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 4,
+    },
+    promoInput: {
+      flex: 1,
+      height: 42,
+      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      color: colors.textPrimary,
+      fontSize: 13,
+      fontWeight: '700',
+      letterSpacing: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    promoApplyBtn: {
+      height: 42,
+      paddingHorizontal: 18,
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    promoApplyText: {
+      fontSize: 13,
+      fontWeight: '900',
+      color: '#000000',
     },
     trialBanner: {
       padding: 14,

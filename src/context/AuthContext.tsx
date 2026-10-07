@@ -20,8 +20,9 @@ import { auth, db, isMockMode } from '../config/firebase';
 export interface UserSubscription {
   status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
   plan: 'starter' | 'transform' | 'vip' | 'monthly' | 'annual' | 'free_trial';
-  trialStartedAt: string;
-  trialEndsAt: string;
+  trialStartedAt?: string;
+  trialEndsAt?: string;
+  promoCode?: string;
   currentPeriodEnd?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
@@ -72,15 +73,31 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper to compute default 4-month trial
-export function getDefaultFourMonthTrial(fromDate = new Date()): UserSubscription {
+// Helper to grant 4-month trial when promo code PULSE4FREE is applied
+export function getPromoCodeTrial(fromDate = new Date()): UserSubscription {
   const trialEnds = new Date(fromDate.getTime() + 120 * 24 * 60 * 60 * 1000); // 120 days = 4 months
   return {
     status: 'trialing',
     plan: 'free_trial',
+    promoCode: 'PULSE4FREE',
     trialStartedAt: fromDate.toISOString(),
     trialEndsAt: trialEnds.toISOString(),
   };
+}
+
+// Default subscription for new accounts without promo code (payments required)
+export function getDefaultNewUserSubscription(fromDate = new Date()): UserSubscription {
+  return {
+    status: 'expired',
+    plan: 'free_trial',
+    trialStartedAt: fromDate.toISOString(),
+    trialEndsAt: fromDate.toISOString(),
+  };
+}
+
+// Legacy alias for compatibility
+export function getDefaultFourMonthTrial(fromDate = new Date()): UserSubscription {
+  return getDefaultNewUserSubscription(fromDate);
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

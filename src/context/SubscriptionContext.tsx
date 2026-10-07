@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { useAuth, UserSubscription } from './AuthContext';
+import { useAuth, UserSubscription, getPromoCodeTrial } from './AuthContext';
 import { processStripeSubscription, SUBSCRIPTION_PLANS, PlanConfig, PlanTier } from '../services/stripeService';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -25,6 +25,7 @@ interface SubscriptionContextType {
   permissions: Record<PlanFeatureKey, PlanFeaturePermission>;
   hasPermission: (feature: PlanFeatureKey) => PlanFeaturePermission;
   subscribe: (planId: PlanTier | string) => Promise<{ success: boolean; error?: string }>;
+  applyPromoCode: (code: string) => Promise<{ success: boolean; error?: string }>;
   cancelSubscription: () => Promise<void>;
 }
 
@@ -40,7 +41,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return {
         isSubscribed: false,
         isInTrial: false,
-        isTrialExpired: false,
+        isTrialExpired: true,
         daysLeftInTrial: 0,
         formattedRenewalDate: null,
       };
@@ -62,14 +63,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     if (subscription.status === 'trialing') {
-      const trialEnds = new Date(subscription.trialEndsAt);
+      const trialEnds = subscription.trialEndsAt ? new Date(subscription.trialEndsAt) : now;
       const diffMs = trialEnds.getTime() - now.getTime();
       const diffDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
       const isExpired = diffMs <= 0;
 
       return {
         isSubscribed: !isExpired,
-        isInTrial: true,
+        isInTrial: !isExpired,
         isTrialExpired: isExpired,
         daysLeftInTrial: diffDays,
         formattedRenewalDate: trialEnds.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -84,6 +85,32 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       formattedRenewalDate: null,
     };
   }, [subscription]);
+
+  // Apply promo code (PULSE4FREE = 4 Months Free)
+  const applyPromoCode = async (code: string) => {
+    if (!user) {
+      return { success: false, error: 'You must be signed in to apply a promo code.' };
+    }
+    const cleanCode = code.trim().toUpperCase();
+    if (cleanCode !== 'PULSE4FREE') {
+      return { success: false, error: 'Invalid promo code. Please enter a valid code.' };
+    }
+    if (subscription?.promoCode === 'PULSE4FREE' && subscription?.status === 'trialing' && !isTrialExpired) {
+      return { success: false, error: 'Promo code PULSE4FREE is already active on this account.' };
+    }
+
+    try {
+      const now = new Date();
+      const trialData = getPromoCodeTrial(now);
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        subscription: trialData,
+      });
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Failed to apply promo code.' };
+    }
+  };
 
   // Trigger Stripe Payment Sheet subscription
   const subscribe = async (planId: PlanTier | string) => {
@@ -124,6 +151,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         permissions,
         hasPermission,
         subscribe,
+        applyPromoCode,
         cancelSubscription,
       }}
     >
