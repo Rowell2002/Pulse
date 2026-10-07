@@ -14,11 +14,12 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import { ChevronLeft, Phone, Video, Send, Paperclip, Smile, FileText, ExternalLink } from 'lucide-react-native';
+import { ChevronLeft, Phone, Video, Send, Paperclip, Smile, FileText, ExternalLink, Lock, Crown, Sparkles } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS } from '../../theme/colors';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
+import { useSubscription } from '../../context/SubscriptionContext';
 import { db, storage } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -28,7 +29,8 @@ import { GlassCard } from '../../components/GlassCard';
 export default function ChatScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
+  const { currentTier, permissions } = useSubscription();
   const { messages: allMessages, sendMessage, markAsRead, threads } = useChat();
 
   const scrollViewRef = useRef<ScrollView>(null);
@@ -36,6 +38,21 @@ export default function ChatScreen() {
   const [targetProfile, setTargetProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [attaching, setAttaching] = useState(false);
+
+  // Parse target user UID from thread ID
+  const targetUid = id
+    ? id.startsWith('dm_')
+      ? id.replace('dm_', '').split('_').find((uid) => uid !== user?.uid)
+      : id
+    : null;
+
+  const isTrainerChat =
+    targetProfile?.role === 'trainer' ||
+    targetUid === userData?.trainerId ||
+    (typeof id === 'string' && (id.includes('coach') || id.includes('trainer')));
+
+  const isAthlete = userData?.role !== 'trainer';
+  const isDirectMessagingBlocked = isTrainerChat && isAthlete && !permissions.directTrainerMessaging.allowed;
 
   // File picking and uploading handler with option suggestion
   const handlePickDocument = async () => {
@@ -62,7 +79,20 @@ export default function ChatScreen() {
         [
           {
             text: '📌 Pin as Active Meal Plan',
-            onPress: () => processUploadAndSend(localUri, name, true),
+            onPress: () => {
+              if (isAthlete && !permissions.mealPlan.allowed) {
+                Alert.alert(
+                  'Meal Plans Locked',
+                  'Meal Plans are included in the Transform ($39.99/mo) and VIP 1ON1 ($119.99/mo) plans. Upgrade to unlock pinned meal plans.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Upgrade Plan', onPress: () => router.push('/subscription/paywall' as any) },
+                  ]
+                );
+                return;
+              }
+              processUploadAndSend(localUri, name, true);
+            },
           },
           {
             text: '📄 Send as Regular PDF',
@@ -113,15 +143,6 @@ export default function ChatScreen() {
 
   const thread = threads.find((t) => t.id === id);
   const messages = allMessages[id as string] || [];
-
-  // Parse target user UID from thread ID
-  // e.g. "dm_mock-user-123_emma-watson" -> "emma-watson"
-  // e.g. "coach-sarah" -> "coach-sarah"
-  const targetUid = id
-    ? id.startsWith('dm_')
-      ? id.replace('dm_', '').split('_').find((uid) => uid !== user?.uid)
-      : id
-    : null;
 
   // Resolve target user details
   useEffect(() => {
@@ -250,8 +271,43 @@ export default function ChatScreen() {
             </View>
           )}
           <View style={styles.headerMeta}>
-            <Text style={styles.headerName} numberOfLines={1}>{displayName}</Text>
-            <Text style={styles.headerSubtitle} numberOfLines={1}>{displaySubtitle}</Text>
+            <View style={styles.headerNameRow}>
+              <Text style={styles.headerName} numberOfLines={1}>{displayName}</Text>
+              {isTrainerChat && (
+                <View
+                  style={[
+                    styles.tierBadge,
+                    currentTier === 'vip'
+                      ? styles.vipBadge
+                      : currentTier === 'transform'
+                      ? styles.transformBadge
+                      : styles.starterBadge,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tierBadgeText,
+                      currentTier === 'vip' && { color: '#000000' },
+                    ]}
+                  >
+                    {currentTier === 'vip'
+                      ? 'VIP PRIORITY'
+                      : currentTier === 'transform'
+                      ? 'DIRECT MSG'
+                      : 'MSG LOCKED'}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.headerSubtitle} numberOfLines={1}>
+              {isTrainerChat
+                ? currentTier === 'vip'
+                  ? 'VIP Priority Direct Messaging Active'
+                  : currentTier === 'transform'
+                  ? 'Coach Direct Messaging (1x/mo Video Review)'
+                  : 'Upgrade to Transform for Direct Messaging'
+                : displaySubtitle}
+            </Text>
           </View>
         </View>
 
@@ -390,45 +446,68 @@ export default function ChatScreen() {
           )}
         </ScrollView>
 
-        {/* Input Bar */}
-        <View style={styles.inputBar}>
-          <TouchableOpacity 
-            activeOpacity={0.8} 
-            style={styles.inputAction}
-            onPress={handlePickDocument}
-            disabled={attaching}
-          >
-            {attaching ? (
-              <ActivityIndicator size="small" color={COLORS.primary} />
-            ) : (
-              <Paperclip size={18} color={COLORS.textMuted} />
-            )}
-          </TouchableOpacity>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Message..."
-              placeholderTextColor="rgba(255,255,255,0.3)"
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-              returnKeyType="default"
-            />
-            <TouchableOpacity activeOpacity={0.8}>
-              <Smile size={18} color={COLORS.textMuted} />
+        {/* Input Bar or Locked Direct Messaging Banner */}
+        {isDirectMessagingBlocked ? (
+          <View style={styles.lockedBar}>
+            <View style={styles.lockedBarContent}>
+              <View style={styles.lockIconBox}>
+                <Lock size={16} color={COLORS.primary} />
+              </View>
+              <View style={styles.lockedTextWrapper}>
+                <Text style={styles.lockedTitle}>Direct Trainer Messaging Locked</Text>
+                <Text style={styles.lockedSubtitle}>
+                  Included in Transform ($39.99/mo) and VIP 1ON1 ($119.99/mo) plans.
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.upgradeButton}
+              onPress={() => router.push('/subscription/paywall' as any)}
+            >
+              <Text style={styles.upgradeButtonText}>Upgrade Plan</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={handleSend}
-            style={[styles.sendButton, inputText.trim().length > 0 && styles.sendButtonActive]}
-          >
-            <Send
-              size={18}
-              color={inputText.trim().length > 0 ? '#000000' : COLORS.textMuted}
-            />
-          </TouchableOpacity>
-        </View>
+        ) : (
+          <View style={styles.inputBar}>
+            <TouchableOpacity 
+              activeOpacity={0.8} 
+              style={styles.inputAction}
+              onPress={handlePickDocument}
+              disabled={attaching}
+            >
+              {attaching ? (
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              ) : (
+                <Paperclip size={18} color={COLORS.textMuted} />
+              )}
+            </TouchableOpacity>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Message..."
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+                returnKeyType="default"
+              />
+              <TouchableOpacity activeOpacity={0.8}>
+                <Smile size={18} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSend}
+              style={[styles.sendButton, inputText.trim().length > 0 && styles.sendButtonActive]}
+            >
+              <Send
+                size={18}
+                color={inputText.trim().length > 0 ? '#000000' : COLORS.textMuted}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -771,5 +850,81 @@ const styles = StyleSheet.create({
   fileSizeText: {
     fontSize: 10,
     color: COLORS.textMuted,
+  },
+  headerNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  tierBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  vipBadge: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  transformBadge: {
+    backgroundColor: 'rgba(204, 255, 0, 0.15)',
+    borderColor: COLORS.primary,
+  },
+  starterBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: COLORS.borderGlass,
+  },
+  tierBadgeText: {
+    fontSize: 8,
+    fontWeight: '900',
+    color: COLORS.primary,
+    letterSpacing: 0.5,
+  },
+  lockedBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(20, 20, 20, 0.95)',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borderGlass,
+    gap: 10,
+  },
+  lockedBarContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  lockIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(204, 255, 0, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lockedTextWrapper: {
+    flex: 1,
+    gap: 2,
+  },
+  lockedTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  lockedSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    lineHeight: 14,
+  },
+  upgradeButton: {
+    height: 38,
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeButtonText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#000000',
   },
 });

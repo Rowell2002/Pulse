@@ -19,6 +19,7 @@ import { VitalityRing } from '../../components/VitalityRing';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useSubscription } from '../../context/SubscriptionContext';
 import { useThemedStyles } from '../../theme/themedStyles';
 
 const { width } = Dimensions.get('window');
@@ -33,6 +34,7 @@ const MOCK_LATEST_PHOTOS = {
 export default function DashboardScreen() {
   const router = useRouter();
   const { userData } = useAuth();
+  const { currentTier, permissions } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
 
@@ -501,12 +503,16 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      {/* Upcoming Event */}
+      {/* Upcoming Event / Live Coaching Call */}
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
           if (userData?.trainerId) {
-            router.push('/(tabs)/workouts');
+            if (!permissions.liveCoachingCall.allowed && currentTier !== 'vip') {
+              router.push('/subscription/paywall' as any);
+            } else {
+              router.push('/(tabs)/workouts');
+            }
           } else {
             router.push('/profile/settings');
           }
@@ -517,12 +523,25 @@ export default function DashboardScreen() {
           <View style={styles.upcomingBadge} />
           <View style={styles.upcomingContent}>
             <View style={styles.upcomingText}>
-              <Text style={styles.upcomingLabel}>
-                {userData?.trainerId ? 'UPCOMING SESSION' : 'GET A COACH'}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.upcomingLabel}>
+                  {userData?.trainerId
+                    ? currentTier === 'vip'
+                      ? '1× MONTHLY LIVE COACHING (VIP)'
+                      : 'WEEKLY COACHING SESSION'
+                    : 'GET A COACH'}
+                </Text>
+                {userData?.trainerId && !permissions.liveCoachingCall.allowed && (
+                  <View style={{ backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 3 }}>
+                    <Text style={{ fontSize: 8, fontWeight: '800', color: colors.textMuted }}>VIP ONLY CALLS</Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.upcomingTitle}>
                 {userData?.trainerId
-                  ? `${upcomingTitle} with Coach ${trainerData?.name || 'Sarah'}`
+                  ? currentTier === 'vip'
+                    ? `Live 1-on-1 Video Coaching with Coach ${trainerData?.name || 'Sarah'}`
+                    : `${upcomingTitle} with Coach ${trainerData?.name || 'Sarah'}`
                   : 'Hire a certified personal coach in app settings.'}
               </Text>
               <View style={styles.upcomingLocation}>

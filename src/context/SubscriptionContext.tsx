@@ -4,6 +4,14 @@ import { processStripeSubscription, SUBSCRIPTION_PLANS, PlanConfig, PlanTier } f
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+import {
+  PlanFeatureKey,
+  PlanFeaturePermission,
+  resolveUserPlanTier,
+  TIER_PERMISSIONS,
+  checkPlanPermission,
+} from '../services/planPermissions';
+
 interface SubscriptionContextType {
   subscription: UserSubscription | null;
   isSubscribed: boolean;
@@ -11,8 +19,11 @@ interface SubscriptionContextType {
   isTrialExpired: boolean;
   daysLeftInTrial: number;
   plan: 'starter' | 'transform' | 'vip' | 'monthly' | 'annual' | 'free_trial' | null;
+  currentTier: PlanTier;
   formattedRenewalDate: string | null;
   plans: Record<string, PlanConfig>;
+  permissions: Record<PlanFeatureKey, PlanFeaturePermission>;
+  hasPermission: (feature: PlanFeatureKey) => PlanFeaturePermission;
   subscribe: (planId: PlanTier | string) => Promise<{ success: boolean; error?: string }>;
   cancelSubscription: () => Promise<void>;
 }
@@ -94,6 +105,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
   };
 
+  const currentTier = useMemo(() => resolveUserPlanTier(subscription), [subscription]);
+  const permissions = useMemo(() => TIER_PERMISSIONS[currentTier] || TIER_PERMISSIONS.starter, [currentTier]);
+  const hasPermission = (feature: PlanFeatureKey) => checkPlanPermission(subscription, feature);
+
   return (
     <SubscriptionContext.Provider
       value={{
@@ -103,8 +118,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         isTrialExpired,
         daysLeftInTrial,
         plan: subscription?.plan || null,
+        currentTier,
         formattedRenewalDate,
         plans: SUBSCRIPTION_PLANS,
+        permissions,
+        hasPermission,
         subscribe,
         cancelSubscription,
       }}
