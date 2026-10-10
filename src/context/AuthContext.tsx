@@ -26,6 +26,9 @@ export interface UserSubscription {
   currentPeriodEnd?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  iapOriginalTransactionId?: string;
+  iapProductId?: string;
+  revenueCatAppUserId?: string;
   cancelAtPeriodEnd?: boolean;
 }
 

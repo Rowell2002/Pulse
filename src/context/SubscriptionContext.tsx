@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import { useAuth, UserSubscription, getPromoCodeTrial } from './AuthContext';
-import { processStripeSubscription, SUBSCRIPTION_PLANS, PlanConfig, PlanTier } from '../services/stripeService';
+import {
+  processInAppPurchase,
+  restoreInAppPurchases,
+  initializePurchases,
+  SUBSCRIPTION_PLANS,
+  PlanConfig,
+  PlanTier,
+} from '../services/purchaseService';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -24,7 +31,8 @@ interface SubscriptionContextType {
   plans: Record<string, PlanConfig>;
   permissions: Record<PlanFeatureKey, PlanFeaturePermission>;
   hasPermission: (feature: PlanFeatureKey) => PlanFeaturePermission;
-  subscribe: (planId: PlanTier | string) => Promise<{ success: boolean; error?: string }>;
+  subscribe: (planId: PlanTier | string) => Promise<{ success: boolean; error?: string; userCancelled?: boolean }>;
+  restorePurchases: () => Promise<{ success: boolean; restored: boolean; message: string }>;
   applyPromoCode: (code: string) => Promise<{ success: boolean; error?: string }>;
   cancelSubscription: () => Promise<void>;
 }
@@ -34,6 +42,13 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { userData, user } = useAuth();
   const subscription = userData?.subscription || null;
+
+  // Initialize RevenueCat SDK when user is logged in
+  useEffect(() => {
+    if (user?.uid) {
+      initializePurchases(user.uid);
+    }
+  }, [user?.uid]);
 
   // Compute trial & subscription status
   const { isSubscribed, isInTrial, isTrialExpired, daysLeftInTrial, formattedRenewalDate } = useMemo(() => {
@@ -112,14 +127,23 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Trigger Stripe Payment Sheet subscription
+  // Trigger Native In-App Purchase
   const subscribe = async (planId: PlanTier | string) => {
     if (!userData || !user) {
       return { success: false, error: 'User must be signed in to subscribe.' };
     }
 
-    const result = await processStripeSubscription(planId, userData);
+    const result = await processInAppPurchase(planId, userData);
     return result;
+  };
+
+  // Restore previous In-App Purchases (App Store requirement)
+  const restorePurchases = async () => {
+    if (!userData) {
+      return { success: false, restored: false, message: 'User is not signed in.' };
+    }
+
+    return await restoreInAppPurchases(userData);
   };
 
   // Cancel subscription (at period end)
@@ -151,6 +175,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         permissions,
         hasPermission,
         subscribe,
+        restorePurchases,
         applyPromoCode,
         cancelSubscription,
       }}

@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ShieldCheck,
   Clock,
-  CreditCard,
+  RotateCcw,
   Flame,
   Check,
   X,
@@ -22,6 +22,7 @@ import {
   Zap,
   Crown,
   Tag,
+  CheckCircle2,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,17 +33,18 @@ import {
   PlanTier,
   SUBSCRIPTION_PLANS,
   PLAN_COMPARISON_FEATURES,
-} from '../../services/stripeService';
+} from '../../services/purchaseService';
 
 export default function PaywallScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
-  const { subscription, isInTrial, isTrialExpired, daysLeftInTrial, subscribe, applyPromoCode } = useSubscription();
+  const { subscription, isInTrial, isTrialExpired, daysLeftInTrial, subscribe, restorePurchases, applyPromoCode } = useSubscription();
 
   // Selected plan tier (default to 'transform')
   const [selectedPlan, setSelectedPlan] = useState<PlanTier>('transform');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
@@ -84,13 +86,31 @@ export default function PaywallScreen() {
           `Your ${activePlanConfig.name} plan is now active. Enjoy your workouts and personalized coaching!`,
           [{ text: 'Continue', onPress: () => router.back() }]
         );
-      } else if (result.error && result.error !== 'Payment was canceled.') {
-        Alert.alert('Payment Notice', result.error);
+      } else if (!result.userCancelled && result.error) {
+        Alert.alert('In-App Purchase Notice', result.error);
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Payment processing encountered an issue.');
+      Alert.alert('Error', err.message || 'In-App Purchase could not be completed.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setIsRestoring(true);
+    try {
+      const result = await restorePurchases();
+      if (result.restored) {
+        Alert.alert('Purchases Restored', result.message, [
+          { text: 'Continue', onPress: () => router.back() },
+        ]);
+      } else {
+        Alert.alert('Restore Purchases', result.message);
+      }
+    } catch (err: any) {
+      Alert.alert('Restore Error', err.message || 'Failed to restore purchases.');
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -136,7 +156,18 @@ export default function PaywallScreen() {
           <ChevronLeft size={22} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>PERSONALIZED FITNESS PLANS</Text>
-        <View style={styles.headerPlaceholder} />
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={handleRestore}
+          disabled={isRestoring}
+          style={styles.restoreHeaderButton}
+        >
+          {isRestoring ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Text style={styles.restoreHeaderText}>Restore</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -419,26 +450,37 @@ export default function PaywallScreen() {
               <ActivityIndicator size="small" color="#000000" />
             ) : (
               <>
-                <CreditCard size={18} color="#000000" style={{ marginRight: 8 }} />
+                <CheckCircle2 size={18} color="#000000" style={{ marginRight: 8 }} />
                 <Text style={styles.checkoutButtonText}>
-                  {`Continue with ${activePlanConfig.name} — ${activePlanConfig.formattedPrice}/mo`}
+                  {`Subscribe to ${activePlanConfig.name} — ${activePlanConfig.formattedPrice}/mo`}
                 </Text>
               </>
             )}
           </TouchableOpacity>
 
-          {/* Secure Trust Badges */}
+          {/* In-App Purchase Trust & Policy Row */}
           <View style={styles.securityRow}>
             <ShieldCheck size={14} color={colors.textMuted} />
             <Text style={styles.securityText}>
-              Secured by Stripe • Apple Pay • Google Pay • 256-bit Encryption
+              Billed via Apple In-App Purchase • Cancel anytime in Apple ID settings
             </Text>
           </View>
+
+          {/* Secondary Restore Purchases Link */}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleRestore}
+            disabled={isRestoring}
+            style={styles.restoreFooterButton}
+          >
+            <RotateCcw size={14} color={colors.primary} />
+            <Text style={styles.restoreFooterText}>Restore Existing Purchases</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Legal Footer */}
+        {/* Legal Disclosures (Apple StoreKit Guideline 3.1.2) */}
         <Text style={styles.legalText}>
-          Payment is processed securely via Stripe. Subscriptions renew automatically monthly and can be canceled anytime in Settings.
+          Payment will be charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current billing cycle. You can manage and cancel your subscriptions anytime by going to your App Store account settings after purchase.
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -476,8 +518,21 @@ const getStyles = (colors: any, isDark: boolean) =>
       color: colors.textPrimary,
       letterSpacing: 0.5,
     },
-    headerPlaceholder: {
-      width: 36,
+    restoreHeaderButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceCard,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 64,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    restoreHeaderText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: colors.primary,
     },
     scrollContent: {
       paddingHorizontal: 16,
@@ -818,6 +873,19 @@ const getStyles = (colors: any, isDark: boolean) =>
       fontSize: 11,
       color: colors.textMuted,
       fontWeight: '500',
+    },
+    restoreFooterButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 6,
+      marginTop: 2,
+    },
+    restoreFooterText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.primary,
     },
     legalText: {
       fontSize: 10,

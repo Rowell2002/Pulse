@@ -1,4 +1,4 @@
-import { PlanTier } from './stripeService';
+import { PlanTier } from './purchaseService';
 import { UserSubscription } from '../context/AuthContext';
 
 export type PlanFeatureKey =
