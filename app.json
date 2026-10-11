@@ -10,7 +10,6 @@
     "ios": {
       "bundleIdentifier": "com.chethanarowell.pulse",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "icon": "./assets/expo.icon",
       "infoPlist": {
         "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts.",
         "NSCameraUsageDescription": "This app requires access to your camera to take progress photos.",
@@ -25,7 +24,7 @@
         "android.permission.ACTIVITY_RECOGNITION"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -41,10 +40,12 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#000000",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 180,
           "android": {
             "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+            "imageWidth": 180
           }
         }
       ],
