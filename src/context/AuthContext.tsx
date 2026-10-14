@@ -8,9 +8,10 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithCredential,
+  deleteUser,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
@@ -19,12 +20,16 @@ import { auth, db, isMockMode } from '../config/firebase';
 // Interface for Subscription Data
 export interface UserSubscription {
   status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
-  plan: 'monthly' | 'annual' | 'free_trial';
-  trialStartedAt: string;
-  trialEndsAt: string;
+  plan: 'starter' | 'transform' | 'vip' | 'monthly' | 'annual' | 'free_trial';
+  trialStartedAt?: string;
+  trialEndsAt?: string;
+  promoCode?: string;
   currentPeriodEnd?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  iapOriginalTransactionId?: string;
+  iapProductId?: string;
+  revenueCatAppUserId?: string;
   cancelAtPeriodEnd?: boolean;
 }
 
@@ -67,20 +72,37 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper to compute default 4-month trial
-export function getDefaultFourMonthTrial(fromDate = new Date()): UserSubscription {
+// Helper to grant 4-month trial when promo code PULSE4FREE is applied
+export function getPromoCodeTrial(fromDate = new Date()): UserSubscription {
   const trialEnds = new Date(fromDate.getTime() + 120 * 24 * 60 * 60 * 1000); // 120 days = 4 months
   return {
     status: 'trialing',
     plan: 'free_trial',
+    promoCode: 'PULSE4FREE',
     trialStartedAt: fromDate.toISOString(),
     trialEndsAt: trialEnds.toISOString(),
   };
+}
+
+// Default subscription for new accounts without promo code (payments required)
+export function getDefaultNewUserSubscription(fromDate = new Date()): UserSubscription {
+  return {
+    status: 'expired',
+    plan: 'free_trial',
+    trialStartedAt: fromDate.toISOString(),
+    trialEndsAt: fromDate.toISOString(),
+  };
+}
+
+// Legacy alias for compatibility
+export function getDefaultFourMonthTrial(fromDate = new Date()): UserSubscription {
+  return getDefaultNewUserSubscription(fromDate);
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -465,6 +487,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Delete Account (Apple Guideline 5.1.1)
+  const deleteAccount = async () => {
+    if (!auth.currentUser) throw new Error('No user is currently authenticated.');
+
+    setLoading(true);
+    try {
+      const uid = auth.currentUser.uid;
+      // 1. Delete user document from Firestore
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+      } catch (err) {
+        console.warn('[AuthContext] Error deleting Firestore document:', err);
+      }
+
+      // 2. Disconnect Google if connected
+      try {
+        if (GoogleSignin.hasPreviousSignIn()) {
+          await GoogleSignin.signOut();
+        }
+      } catch {
+        // ignore
+      }
+
+      // 3. Delete Firebase Auth user
+      await deleteUser(auth.currentUser);
+
+      setUser(null);
+      setUserData(null);
+    } catch (error: any) {
+      console.error('[AuthContext] Delete account error:', error);
+      if (error?.code === 'auth/requires-recent-login') {
+        throw new Error('For security reasons, deleting your account requires recent authentication. Please sign out, sign back in, and try again.');
+      }
+      throw new Error(error.message || 'Failed to delete account.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update Profile fields
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user || !userData) throw new Error('No user is currently authenticated.');
@@ -500,6 +561,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogle,
         signInWithApple,
         signOut,
+        deleteAccount,
         updateProfile,
       }}
     >

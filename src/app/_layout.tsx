@@ -69,7 +69,6 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { SubscriptionProvider } from '../context/SubscriptionContext';
-import { StripeProvider } from '@stripe/stripe-react-native';
 
 function ThemedAppStack() {
   const { colors } = useTheme();
@@ -105,24 +104,17 @@ function ThemedAppStack() {
 }
 
 export default function RootLayout() {
-  const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_51BTUDGJAJfZb9HEBwDg561ggHpoqGeScS52o9o9x';
-
   return (
     <SafeAreaProvider style={{ backgroundColor: '#000000' }}>
-      <StripeProvider
-        publishableKey={stripePublishableKey}
-        merchantIdentifier="merchant.com.chethanarowell.pulse"
-      >
-        <AuthProvider>
-          <SubscriptionProvider>
-            <ThemeProvider>
-              <AuthGuard>
-                <ThemedAppStack />
-              </AuthGuard>
-            </ThemeProvider>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </StripeProvider>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <ThemeProvider>
+            <AuthGuard>
+              <ThemedAppStack />
+            </AuthGuard>
+          </ThemeProvider>
+        </SubscriptionProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
