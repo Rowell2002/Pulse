@@ -8,9 +8,10 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithCredential,
+  deleteUser,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
@@ -71,6 +72,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
@@ -485,6 +487,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Delete Account (Apple Guideline 5.1.1)
+  const deleteAccount = async () => {
+    if (!auth.currentUser) throw new Error('No user is currently authenticated.');
+
+    setLoading(true);
+    try {
+      const uid = auth.currentUser.uid;
+      // 1. Delete user document from Firestore
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+      } catch (err) {
+        console.warn('[AuthContext] Error deleting Firestore document:', err);
+      }
+
+      // 2. Disconnect Google if connected
+      try {
+        if (GoogleSignin.hasPreviousSignIn()) {
+          await GoogleSignin.signOut();
+        }
+      } catch {
+        // ignore
+      }
+
+      // 3. Delete Firebase Auth user
+      await deleteUser(auth.currentUser);
+
+      setUser(null);
+      setUserData(null);
+    } catch (error: any) {
+      console.error('[AuthContext] Delete account error:', error);
+      if (error?.code === 'auth/requires-recent-login') {
+        throw new Error('For security reasons, deleting your account requires recent authentication. Please sign out, sign back in, and try again.');
+      }
+      throw new Error(error.message || 'Failed to delete account.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update Profile fields
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user || !userData) throw new Error('No user is currently authenticated.');
@@ -520,6 +561,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogle,
         signInWithApple,
         signOut,
+        deleteAccount,
         updateProfile,
       }}
     >

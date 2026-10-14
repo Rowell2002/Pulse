@@ -21,6 +21,7 @@ import {
   LogOut,
   Crown,
   Dumbbell,
+  Trash2,
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
@@ -32,7 +33,7 @@ import { useSubscription } from '../../context/SubscriptionContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { userData, signOut, updateProfile } = useAuth();
+  const { userData, signOut, deleteAccount, updateProfile } = useAuth();
   const { subscription, isSubscribed, isInTrial, isTrialExpired, daysLeftInTrial, plan, formattedRenewalDate } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(getStyles);
@@ -108,6 +109,30 @@ export default function SettingsScreen() {
               router.replace('/');
             } catch (err) {
               console.error('[Settings] Error signing out:', err);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to permanently delete your account and all associated workout data? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Forever',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              Alert.alert('Account Deleted', 'Your account has been permanently removed.');
+              router.replace('/');
+            } catch (err: any) {
+              console.error('[Settings] Error deleting account:', err);
+              Alert.alert('Delete Failed', err.message || 'Unable to delete account at this time.');
             }
           },
         },
@@ -332,13 +357,23 @@ export default function SettingsScreen() {
           </GlassCard>
         </View>
 
+        {/* Delete Account */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleDeleteAccount}
+          style={styles.deleteAccountButton}
+        >
+          <Trash2 size={18} color="#EF4444" />
+          <Text style={styles.deleteAccountText}>Delete Account</Text>
+        </TouchableOpacity>
+
         {/* Sign Out */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handleSignOut}
           style={styles.signOutButton}
         >
-          <LogOut size={18} color={colors.error} />
+          <LogOut size={18} color={colors.textMuted} />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
 
@@ -592,12 +627,29 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     gap: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-    backgroundColor: 'rgba(239, 68, 68, 0.04)',
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)',
     marginTop: 8,
   },
   signOutText: {
-    color: colors.error,
+    color: colors.textMuted,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  deleteAccountButton: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    marginTop: 12,
+  },
+  deleteAccountText: {
+    color: '#EF4444',
     fontSize: 15,
     fontWeight: 'bold',
   },
