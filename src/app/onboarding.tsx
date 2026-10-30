@@ -7,6 +7,7 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { TrendingUp, Dumbbell, Zap, Heart } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
@@ -52,8 +53,12 @@ export default function OnboardingScreen() {
       await updateProfile({ selectedGoal });
       // The Auth Guard inside _layout.tsx will see the completed profile
       // and redirect the user automatically to /(tabs)/home
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Onboarding] Error saving fitness goal:', error);
+      Alert.alert(
+        'Save Error',
+        error?.message || 'Failed to save your fitness goal. Please check your network and try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }

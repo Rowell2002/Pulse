@@ -4,15 +4,19 @@ import { ChevronLeft, BarChart2, TrendingUp, Award, AwardIcon } from 'lucide-rea
 import { COLORS } from '../../theme/colors';
 import { GlassCard } from '../../components/GlassCard';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ClientStatsScreen() {
   const router = useRouter();
+  const { userData } = useAuth();
 
   const metrics = [
     { label: 'Weight Progression', value: '78 kg', change: '-2.4 kg (30d)', status: 'down' },
     { label: 'Estimated Body Fat', value: '12.4%', change: '-0.8% (30d)', status: 'down' },
     { label: 'Skeletal Muscle Mass', value: '38.2 kg', change: '+1.1 kg (30d)', status: 'up' },
   ];
+
+  const athleteName = userData?.name ? userData.name.split(' ')[0] : 'Athlete';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -33,7 +37,7 @@ export default function ClientStatsScreen() {
         {/* Title */}
         <View style={styles.titleSection}>
           <Text style={styles.statsLabel}>PERFORMANCE DASHBOARD</Text>
-          <Text style={styles.statsTitle}>Alex's Vital Statistics</Text>
+          <Text style={styles.statsTitle}>{athleteName}'s Vital Statistics</Text>
           <Text style={styles.statsMeta}>Sync: Today, 08:32 AM via Smartwatch Scale</Text>
         </View>
 

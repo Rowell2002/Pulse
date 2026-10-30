@@ -205,10 +205,12 @@ export default function DashboardScreen() {
   useEffect(() => {
     if (userData?.role === 'trainer') return;
 
+    let isMounted = true;
     let subscription: any = null;
 
     Pedometer.isAvailableAsync().then(
       (available) => {
+        if (!isMounted) return;
         if (available) {
           // Query steps taken today since midnight
           const start = new Date();
@@ -217,29 +219,32 @@ export default function DashboardScreen() {
 
           Pedometer.getStepCountAsync(start, end).then(
             (result) => {
-              setBaselineSteps(result.steps);
+              if (isMounted) setBaselineSteps(result.steps);
             },
             (error) => {
               console.warn('[Pedometer] Failed to query baseline steps:', error);
-              setBaselineSteps(8420); // Fallback mock steps for emulator
+              if (isMounted) setBaselineSteps(8420); // Fallback mock steps for emulator
             }
           );
 
           // Subscribe to live steps while app is active
-          subscription = Pedometer.watchStepCount((result) => {
-            setSessionSteps(result.steps);
-          });
+          if (isMounted) {
+            subscription = Pedometer.watchStepCount((result) => {
+              if (isMounted) setSessionSteps(result.steps);
+            });
+          }
         } else {
-          setBaselineSteps(8420); // Fallback mock steps for simulators
+          if (isMounted) setBaselineSteps(8420); // Fallback mock steps for simulators
         }
       },
       (error) => {
         console.warn('[Pedometer] Error checking pedometer availability:', error);
-        setBaselineSteps(8420); // Fallback mock steps
+        if (isMounted) setBaselineSteps(8420); // Fallback mock steps
       }
     );
 
     return () => {
+      isMounted = false;
       if (subscription) {
         subscription.remove();
       }
@@ -253,7 +258,7 @@ export default function DashboardScreen() {
   const getCaloriesBurnedToday = () => {
     let totalCal = 0;
     completedWorkoutsToday.forEach((w) => {
-      const timeStr = w.time || '00:00';
+      const timeStr = typeof w.time === 'string' ? w.time : '00:00';
       const parts = timeStr.split(':');
       const mins = parts.length > 0 ? parseFloat(parts[0]) || 0 : 0;
       const secs = parts.length > 1 ? parseFloat(parts[1]) || 0 : 0;
@@ -269,9 +274,9 @@ export default function DashboardScreen() {
 
   // Today's Focus calculations
   const hasAssigned = assignedExercises.length > 0;
-  const focusTitle = hasAssigned ? assignedExercises[0].name : "Push Day - Chest Press";
+  const focusTitle = hasAssigned ? (assignedExercises[0]?.name || "Assigned Exercise") : "Push Day - Chest Press";
   const focusMeta = hasAssigned
-    ? `Assigned: ${assignedExercises[0].sets} Sets x ${assignedExercises[0].reps} Reps @ ${assignedExercises[0].weight} ${assignedExercises[0].unit || 'lbs'}`
+    ? `Assigned: ${assignedExercises[0]?.sets || 3} Sets x ${assignedExercises[0]?.reps || 10} Reps @ ${assignedExercises[0]?.weight || 20} ${assignedExercises[0]?.unit || 'lbs'}`
     : "45 Min • High Intensity";
 
   // Upcoming calculations
@@ -508,7 +513,7 @@ export default function DashboardScreen() {
         activeOpacity={0.8}
         onPress={() => {
           if (userData?.trainerId) {
-            if (!permissions.liveCoachingCall.allowed && currentTier !== 'vip') {
+            if (!permissions?.liveCoachingCall?.allowed && currentTier !== 'vip') {
               router.push('/subscription/paywall' as any);
             } else {
               router.push('/(tabs)/workouts');
@@ -531,7 +536,7 @@ export default function DashboardScreen() {
                       : 'WEEKLY COACHING SESSION'
                     : 'GET A COACH'}
                 </Text>
-                {userData?.trainerId && !permissions.liveCoachingCall.allowed && (
+                {userData?.trainerId && !permissions?.liveCoachingCall?.allowed && (
                   <View style={{ backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 3 }}>
                     <Text style={{ fontSize: 8, fontWeight: '800', color: colors.textMuted }}>VIP ONLY CALLS</Text>
                   </View>

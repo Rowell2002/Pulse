@@ -116,39 +116,44 @@ export default function AssignedActiveWorkoutScreen() {
 
         setExercises(filtered);
 
-        // 2. Fetch history for each exercise to show "Previous" and enable auto-fill
+        // 2. Pre-initialize stats and history structures for all exercises
         const historyData: typeof history = {};
         const initialStats: typeof stats = {};
 
         for (const ex of filtered) {
-          const histQuery = query(
-            collection(db, 'users', user.uid, 'completed_workouts'),
-            where('exerciseId', '==', ex.id),
-            orderBy('completedAt', 'desc'),
-            limit(1)
-          );
-          const histSnap = await getDocs(histQuery);
-          
-          let prevWeights: string[] = [];
-          let prevReps: string[] = [];
-
-          if (!histSnap.empty) {
-            const lastWorkout = histSnap.docs[0].data();
-            prevWeights = lastWorkout.weights || [];
-            prevReps = lastWorkout.reps || [];
-          }
-
-          historyData[ex.id] = {
-            weights: prevWeights,
-            reps: prevReps,
-          };
-
-          // Initialize stats as empty strings
           initialStats[ex.id] = {
             weights: Array(ex.sets || 3).fill(''),
             reps: Array(ex.sets || 3).fill(''),
           };
+          historyData[ex.id] = {
+            weights: [],
+            reps: [],
+          };
         }
+
+        // Fetch history in parallel with error isolation per exercise
+        await Promise.all(
+          filtered.map(async (ex) => {
+            try {
+              const histQuery = query(
+                collection(db, 'users', user.uid, 'completed_workouts'),
+                where('exerciseId', '==', ex.id),
+                orderBy('completedAt', 'desc'),
+                limit(1)
+              );
+              const histSnap = await getDocs(histQuery);
+              if (!histSnap.empty) {
+                const lastWorkout = histSnap.docs[0].data();
+                historyData[ex.id] = {
+                  weights: lastWorkout.weights || [],
+                  reps: lastWorkout.reps || [],
+                };
+              }
+            } catch (histErr) {
+              console.warn('[AssignedActive] History fetch notice for', ex.id, histErr);
+            }
+          })
+        );
 
         setHistory(historyData);
         setStats(initialStats);

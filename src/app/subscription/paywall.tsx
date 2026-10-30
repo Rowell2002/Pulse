@@ -84,6 +84,14 @@ export default function PaywallScreen() {
 
   const activePlanConfig = SUBSCRIPTION_PLANS[selectedPlan] || SUBSCRIPTION_PLANS.transform;
 
+  const handleDismiss = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/home' as any);
+    }
+  };
+
   const handleApplyPromo = async () => {
     const code = promoCodeInput.trim().toUpperCase();
     if (!code) {
@@ -97,7 +105,7 @@ export default function PaywallScreen() {
         Alert.alert(
           '🎉 4-Month Free Access Unlocked!',
           'Promo code PULSE4FREE was applied successfully! You have 4 months of free Pulse access.',
-          [{ text: 'Great!', onPress: () => router.back() }]
+          [{ text: 'Great!', onPress: handleDismiss }]
         );
         setPromoCodeInput('');
       } else {
@@ -118,7 +126,7 @@ export default function PaywallScreen() {
         Alert.alert(
           '🎉 Membership Active',
           `Your ${activePlanConfig.name} plan is now active. Enjoy your workouts and personalized coaching!`,
-          [{ text: 'Continue', onPress: () => router.back() }]
+          [{ text: 'Continue', onPress: handleDismiss }]
         );
       } else if (!result.userCancelled && result.error) {
         Alert.alert('In-App Purchase Notice', result.error);
@@ -136,7 +144,7 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
       if (result.restored) {
         Alert.alert('Purchases Restored', result.message, [
-          { text: 'Continue', onPress: () => router.back() },
+          { text: 'Continue', onPress: handleDismiss },
         ]);
       } else {
         Alert.alert('Restore Purchases', result.message);
@@ -184,7 +192,7 @@ export default function PaywallScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => router.back()}
+          onPress={handleDismiss}
           style={styles.closeButton}
         >
           <ChevronLeft size={22} color={colors.textPrimary} />

@@ -156,8 +156,9 @@ export default function CommunityScreen() {
       setUserQuery('');
       // Navigate to direct chat
       router.push(`/chat/${chatId}` as any);
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Community] Failed to start chat:', err);
+      Alert.alert('Error', err?.message || 'Failed to start conversation. Please try again.');
     }
   };
 
@@ -383,7 +384,7 @@ export default function CommunityScreen() {
                           ) : (
                             <View style={styles.chatIconWrapper}>
                               <Text style={styles.placeholderInitial}>
-                                {thread.name.charAt(0)}
+                                {(thread.name && thread.name.charAt(0)) || '?'}
                               </Text>
                             </View>
                           )}

@@ -28,7 +28,8 @@ import { GlassCard } from '../../components/GlassCard';
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user, userData } = useAuth();
   const { currentTier, permissions } = useSubscription();
   const { messages: allMessages, sendMessage, markAsRead, threads } = useChat();
@@ -42,7 +43,7 @@ export default function ChatScreen() {
   // Parse target user UID from thread ID
   const targetUid = id
     ? id.startsWith('dm_')
-      ? id.replace('dm_', '').split('_').find((uid) => uid !== user?.uid)
+      ? id.replace('dm_', '').split('_').find((uid: string) => uid !== user?.uid)
       : id
     : null;
 
@@ -177,8 +178,14 @@ export default function ChatScreen() {
     const trimmed = inputText.trim();
     if (!trimmed || !id) return;
     setInputText('');
-    await sendMessage(id, trimmed);
-    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    try {
+      await sendMessage(id, trimmed);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    } catch (err: any) {
+      console.warn('[Chat] Failed to send message:', err);
+      setInputText(trimmed); // Restore message
+      Alert.alert('Send Error', 'Failed to deliver message. Please check your connection.');
+    }
   };
 
   const formatMsgTime = (timeVal: any) => {
