@@ -11,8 +11,9 @@ import {
   Modal,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
-import { Heart, MessageSquare, Share2, Award, Zap, MessageSquarePlus, Utensils, Users, ChevronRight, Search, X } from 'lucide-react-native';
+import { Heart, MessageSquare, Share2, Award, Zap, MessageSquarePlus, Utensils, Users, ChevronRight, Search, X, MoreHorizontal } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
 import { GlassCard } from '../../components/GlassCard';
@@ -97,6 +98,55 @@ export default function CommunityScreen() {
     } catch (e) {
       // cancelled
     }
+  };
+
+  const handlePostOptions = () => {
+    Alert.alert(
+      'Post Options',
+      'Select an action for this post:',
+      [
+        {
+          text: 'Report Post',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Report Post',
+              'Please specify the reason:',
+              [
+                {
+                  text: 'Inappropriate or Offensive',
+                  onPress: () => Alert.alert('Report Received', 'Thank you. Content reported for moderation review.'),
+                },
+                {
+                  text: 'Spam or Misleading',
+                  onPress: () => Alert.alert('Report Received', 'Thank you. Content reported for moderation review.'),
+                },
+                { text: 'Cancel', style: 'cancel' },
+              ]
+            );
+          },
+        },
+        {
+          text: 'Block Marcus Chen',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Block Marcus Chen?',
+              'You will no longer see posts or updates from this user.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Block User',
+                  style: 'destructive',
+                  onPress: () => Alert.alert('User Blocked', 'Marcus Chen has been blocked.'),
+                },
+              ]
+            );
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
   };
 
   const handleStartChat = async (targetUser: any) => {
@@ -200,6 +250,13 @@ export default function CommunityScreen() {
                     <Award size={12} color={colors.primary} />
                     <Text style={styles.pbText}>Personal Best</Text>
                   </View>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={handlePostOptions}
+                    style={styles.moreButton}
+                  >
+                    <MoreHorizontal size={18} color={colors.textMuted} />
+                  </TouchableOpacity>
                 </View>
 
                 <Text style={styles.postContent}>
@@ -582,6 +639,10 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  moreButton: {
+    padding: 4,
+    marginLeft: 6,
   },
   postContent: {
     fontSize: 14,

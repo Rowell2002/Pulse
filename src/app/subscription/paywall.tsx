@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -34,6 +34,8 @@ import {
   PlanTier,
   SUBSCRIPTION_PLANS,
   PLAN_COMPARISON_FEATURES,
+  getIAPOfferings,
+  IAP_PRODUCT_IDS,
 } from '../../services/purchaseService';
 
 export default function PaywallScreen() {
@@ -48,6 +50,37 @@ export default function PaywallScreen() {
   const [isRestoring, setIsRestoring] = useState(false);
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [localizedPrices, setLocalizedPrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLocalizedPricing() {
+      try {
+        const offering = await getIAPOfferings();
+        if (offering?.availablePackages && isMounted) {
+          const map: Record<string, string> = {};
+          offering.availablePackages.forEach((pkg) => {
+            const prodId = pkg.product.identifier;
+            if (prodId === IAP_PRODUCT_IDS.starter) map['starter'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.transform) map['transform'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.vip) map['vip'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.annual) map['annual'] = pkg.product.priceString;
+          });
+          setLocalizedPrices(map);
+        }
+      } catch (err) {
+        console.warn('[Paywall] Failed to load localized prices:', err);
+      }
+    }
+    loadLocalizedPricing();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getPlanPrice = (planKey: string) => {
+    return localizedPrices[planKey] || SUBSCRIPTION_PLANS[planKey]?.formattedPrice || '$19.99';
+  };
 
   const activePlanConfig = SUBSCRIPTION_PLANS[selectedPlan] || SUBSCRIPTION_PLANS.transform;
 
@@ -266,7 +299,7 @@ export default function PaywallScreen() {
                 <Zap size={16} color={selectedPlan === 'starter' ? colors.primary : colors.textMuted} />
                 <Text style={styles.tierName}>STARTER</Text>
               </View>
-              <Text style={styles.tierPrice}>$19.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('starter')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -292,7 +325,7 @@ export default function PaywallScreen() {
                 <Sparkles size={16} color={colors.primary} />
                 <Text style={styles.tierName}>TRANSFORM</Text>
               </View>
-              <Text style={styles.tierPrice}>$39.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('transform')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -314,7 +347,7 @@ export default function PaywallScreen() {
                 <Crown size={16} color={selectedPlan === 'vip' ? colors.primary : colors.textMuted} />
                 <Text style={styles.tierName}>VIP 1ON1</Text>
               </View>
-              <Text style={styles.tierPrice}>$119.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('vip')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -453,7 +486,7 @@ export default function PaywallScreen() {
               <>
                 <CheckCircle2 size={18} color="#000000" style={{ marginRight: 8 }} />
                 <Text style={styles.checkoutButtonText}>
-                  {`Subscribe to ${activePlanConfig.name} — ${activePlanConfig.formattedPrice}/mo`}
+                  {`Subscribe to ${activePlanConfig.name} — ${getPlanPrice(selectedPlan)}/mo`}
                 </Text>
               </>
             )}
