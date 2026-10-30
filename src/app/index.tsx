@@ -289,7 +289,7 @@ export default function AuthScreen() {
             and{' '}
             <Text
               style={styles.footerLink}
-              onPress={() => Linking.openURL('https://www.apple.com/legal/privacy/en-ww/')}
+              onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
             >
               Privacy Policy
             </Text>.

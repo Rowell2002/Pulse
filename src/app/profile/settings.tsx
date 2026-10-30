@@ -372,7 +372,7 @@ export default function SettingsScreen() {
             <RowLink
               icon={<Shield size={18} color={colors.textMuted} />}
               label="Privacy Policy"
-              onPress={() => Linking.openURL('https://www.apple.com/legal/privacy/en-ww/')}
+              onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
             />
           </GlassCard>
         </View>

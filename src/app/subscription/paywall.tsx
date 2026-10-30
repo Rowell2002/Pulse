@@ -536,7 +536,7 @@ export default function PaywallScreen() {
           <Text style={styles.legalLinkDivider}>•</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => Linking.openURL('https://www.apple.com/legal/privacy/en-ww/')}
+            onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
           >
             <Text style={styles.legalLink}>Privacy Policy</Text>
           </TouchableOpacity>
