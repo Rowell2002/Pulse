@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
@@ -356,8 +357,19 @@ export default function SignUpScreen() {
           {/* Footer Text */}
           <Text style={styles.footerText}>
             By signing up, you agree to our{' '}
-            <Text style={styles.footerLink}>Terms of Service</Text> and{' '}
-            <Text style={styles.footerLink}>Privacy Policy</Text>.
+            <Text
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}
+            >
+              Terms of Use (EULA)
+            </Text>{' '}
+            and{' '}
+            <Text
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://www.apple.com/legal/privacy/en-ww/')}
+            >
+              Privacy Policy
+            </Text>.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

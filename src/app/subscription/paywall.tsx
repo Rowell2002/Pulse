@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
+  Linking,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -482,6 +483,23 @@ export default function PaywallScreen() {
         <Text style={styles.legalText}>
           Payment will be charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current billing cycle. You can manage and cancel your subscriptions anytime by going to your App Store account settings after purchase.
         </Text>
+
+        {/* Terms of Use & Privacy Policy Links (Apple Guideline 3.1.2) */}
+        <View style={styles.legalLinksRow}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}
+          >
+            <Text style={styles.legalLink}>Terms of Use (EULA)</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalLinkDivider}>•</Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => Linking.openURL('https://www.apple.com/legal/privacy/en-ww/')}
+          >
+            <Text style={styles.legalLink}>Privacy Policy</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -893,6 +911,23 @@ const getStyles = (colors: any, isDark: boolean) =>
       textAlign: 'center',
       lineHeight: 14,
       opacity: 0.7,
-      marginBottom: 20,
+      marginBottom: 12,
+    },
+    legalLinksRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      marginBottom: 28,
+    },
+    legalLink: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.primary,
+      textDecorationLine: 'underline',
+    },
+    legalLinkDivider: {
+      fontSize: 12,
+      color: colors.textMuted,
     },
   });
