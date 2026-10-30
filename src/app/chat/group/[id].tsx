@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { ChevronLeft, Users, MoreVertical, Send, Paperclip, Smile, Pin } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,7 +20,8 @@ import { useAuth } from '../../../context/AuthContext';
 
 export default function GroupChatScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user } = useAuth();
   const { messages: allMessages, sendMessage, threads, markAsRead } = useChat();
 
@@ -40,8 +42,14 @@ export default function GroupChatScreen() {
     const trimmed = inputText.trim();
     if (!trimmed || !id) return;
     setInputText('');
-    await sendMessage(id, trimmed);
-    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    try {
+      await sendMessage(id, trimmed);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    } catch (err: any) {
+      console.warn('[GroupChat] Failed to send message:', err);
+      setInputText(trimmed);
+      Alert.alert('Send Error', 'Failed to deliver message. Please check your connection.');
+    }
   };
 
   const formatMsgTime = (timeVal: any) => {

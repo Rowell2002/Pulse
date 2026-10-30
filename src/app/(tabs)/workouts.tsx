@@ -85,7 +85,7 @@ export default function WorkoutsScreen() {
     );
 
     return unsubscribe;
-  }, [user, userData]);
+  }, [user?.uid, userData?.role]);
 
   const getWorkoutImage = (name: string) => {
     const lowercaseName = name.toLowerCase();

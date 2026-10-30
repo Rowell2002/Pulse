@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  Linking,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -22,6 +23,7 @@ import {
   Crown,
   Dumbbell,
   Trash2,
+  FileText,
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemedStyles } from '../../theme/themedStyles';
@@ -354,6 +356,24 @@ export default function SettingsScreen() {
                 />
               </View>
             </View>
+          </GlassCard>
+        </View>
+
+        {/* Legal & Agreements Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>LEGAL & POLICIES</Text>
+          <GlassCard style={styles.listCard}>
+            <RowLink
+              icon={<FileText size={18} color={colors.textMuted} />}
+              label="Terms of Use (EULA)"
+              bordered
+              onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}
+            />
+            <RowLink
+              icon={<Shield size={18} color={colors.textMuted} />}
+              label="Privacy Policy"
+              onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
+            />
           </GlassCard>
         </View>
 

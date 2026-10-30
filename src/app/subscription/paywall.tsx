@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
+  Linking,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -33,6 +34,8 @@ import {
   PlanTier,
   SUBSCRIPTION_PLANS,
   PLAN_COMPARISON_FEATURES,
+  getIAPOfferings,
+  IAP_PRODUCT_IDS,
 } from '../../services/purchaseService';
 
 export default function PaywallScreen() {
@@ -47,8 +50,47 @@ export default function PaywallScreen() {
   const [isRestoring, setIsRestoring] = useState(false);
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [localizedPrices, setLocalizedPrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLocalizedPricing() {
+      try {
+        const offering = await getIAPOfferings();
+        if (offering?.availablePackages && isMounted) {
+          const map: Record<string, string> = {};
+          offering.availablePackages.forEach((pkg) => {
+            const prodId = pkg.product.identifier;
+            if (prodId === IAP_PRODUCT_IDS.starter) map['starter'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.transform) map['transform'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.vip) map['vip'] = pkg.product.priceString;
+            if (prodId === IAP_PRODUCT_IDS.annual) map['annual'] = pkg.product.priceString;
+          });
+          setLocalizedPrices(map);
+        }
+      } catch (err) {
+        console.warn('[Paywall] Failed to load localized prices:', err);
+      }
+    }
+    loadLocalizedPricing();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getPlanPrice = (planKey: string) => {
+    return localizedPrices[planKey] || SUBSCRIPTION_PLANS[planKey]?.formattedPrice || '$19.99';
+  };
 
   const activePlanConfig = SUBSCRIPTION_PLANS[selectedPlan] || SUBSCRIPTION_PLANS.transform;
+
+  const handleDismiss = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/home' as any);
+    }
+  };
 
   const handleApplyPromo = async () => {
     const code = promoCodeInput.trim().toUpperCase();
@@ -63,7 +105,7 @@ export default function PaywallScreen() {
         Alert.alert(
           '🎉 4-Month Free Access Unlocked!',
           'Promo code PULSE4FREE was applied successfully! You have 4 months of free Pulse access.',
-          [{ text: 'Great!', onPress: () => router.back() }]
+          [{ text: 'Great!', onPress: handleDismiss }]
         );
         setPromoCodeInput('');
       } else {
@@ -84,7 +126,7 @@ export default function PaywallScreen() {
         Alert.alert(
           '🎉 Membership Active',
           `Your ${activePlanConfig.name} plan is now active. Enjoy your workouts and personalized coaching!`,
-          [{ text: 'Continue', onPress: () => router.back() }]
+          [{ text: 'Continue', onPress: handleDismiss }]
         );
       } else if (!result.userCancelled && result.error) {
         Alert.alert('In-App Purchase Notice', result.error);
@@ -102,7 +144,7 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
       if (result.restored) {
         Alert.alert('Purchases Restored', result.message, [
-          { text: 'Continue', onPress: () => router.back() },
+          { text: 'Continue', onPress: handleDismiss },
         ]);
       } else {
         Alert.alert('Restore Purchases', result.message);
@@ -150,7 +192,7 @@ export default function PaywallScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => router.back()}
+          onPress={handleDismiss}
           style={styles.closeButton}
         >
           <ChevronLeft size={22} color={colors.textPrimary} />
@@ -265,7 +307,7 @@ export default function PaywallScreen() {
                 <Zap size={16} color={selectedPlan === 'starter' ? colors.primary : colors.textMuted} />
                 <Text style={styles.tierName}>STARTER</Text>
               </View>
-              <Text style={styles.tierPrice}>$19.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('starter')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -291,7 +333,7 @@ export default function PaywallScreen() {
                 <Sparkles size={16} color={colors.primary} />
                 <Text style={styles.tierName}>TRANSFORM</Text>
               </View>
-              <Text style={styles.tierPrice}>$39.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('transform')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -313,7 +355,7 @@ export default function PaywallScreen() {
                 <Crown size={16} color={selectedPlan === 'vip' ? colors.primary : colors.textMuted} />
                 <Text style={styles.tierName}>VIP 1ON1</Text>
               </View>
-              <Text style={styles.tierPrice}>$119.99</Text>
+              <Text style={styles.tierPrice}>{getPlanPrice('vip')}</Text>
               <Text style={styles.tierPeriod}>/ month</Text>
             </GlassCard>
           </TouchableOpacity>
@@ -452,7 +494,7 @@ export default function PaywallScreen() {
               <>
                 <CheckCircle2 size={18} color="#000000" style={{ marginRight: 8 }} />
                 <Text style={styles.checkoutButtonText}>
-                  {`Subscribe to ${activePlanConfig.name} — ${activePlanConfig.formattedPrice}/mo`}
+                  {`Subscribe to ${activePlanConfig.name} — ${getPlanPrice(selectedPlan)}/mo`}
                 </Text>
               </>
             )}
@@ -482,6 +524,23 @@ export default function PaywallScreen() {
         <Text style={styles.legalText}>
           Payment will be charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current billing cycle. You can manage and cancel your subscriptions anytime by going to your App Store account settings after purchase.
         </Text>
+
+        {/* Terms of Use & Privacy Policy Links (Apple Guideline 3.1.2) */}
+        <View style={styles.legalLinksRow}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}
+          >
+            <Text style={styles.legalLink}>Terms of Use (EULA)</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalLinkDivider}>•</Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
+          >
+            <Text style={styles.legalLink}>Privacy Policy</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -893,6 +952,23 @@ const getStyles = (colors: any, isDark: boolean) =>
       textAlign: 'center',
       lineHeight: 14,
       opacity: 0.7,
-      marginBottom: 20,
+      marginBottom: 12,
+    },
+    legalLinksRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      marginBottom: 28,
+    },
+    legalLink: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.primary,
+      textDecorationLine: 'underline',
+    },
+    legalLinkDivider: {
+      fontSize: 12,
+      color: colors.textMuted,
     },
   });

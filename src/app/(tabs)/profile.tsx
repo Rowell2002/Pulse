@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 import { Trophy, Zap, ArrowRight, Settings, BarChart2, Share2, Grid, Users } from 'lucide-react-native';
 import Svg, { Defs, LinearGradient, Stop, Circle as SvgCircle } from 'react-native-svg';
@@ -119,6 +120,19 @@ export default function ProfileScreen() {
 
     return unsubscribe;
   }, [user?.uid, userData?.role]);
+
+  const handleShareProfile = async () => {
+    try {
+      const athleteName = userData?.name || 'Pulse Athlete';
+      const userTag = userData?.username ? `@${userData.username}` : '';
+      await Share.share({
+        message: `🔥 Check out ${athleteName}'s (${userTag}) fitness journey on PULSE! Push your limits. 💪⚡`,
+        title: `${athleteName} on PULSE`,
+      });
+    } catch (e) {
+      // cancelled
+    }
+  };
 
   const journeyPosts = [
     'https://lh3.googleusercontent.com/aida-public/AB6AXuAYhKoiAselBiCxRBlzyYMw8xWps4s8qVztGHesADBVYrQk1g5ezkzbi4LjSODMnrMs7yWAWbrVv2jDRH1xVHRXCyb4fokO1k7MR37FiVKEy6wb3gwNawbNjEo8V674fDzvOYaqmqDBEvjM1Tac8mptP7lO1tcKzAhb4xYPmfSt_YeD-oely4V3Ehf-qhPgUh31t6zlxbg_TmyQOy552gi2g-Grdlinw_hS_aMfkFYGfoJiRaMI0QMmyXaJhcAXQvQKbb4VGrDamVbM',
@@ -244,7 +258,11 @@ export default function ProfileScreen() {
               <Text style={styles.editBtnText}>Edit Profile</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity activeOpacity={0.8} style={styles.shareBtn}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.shareBtn}
+              onPress={handleShareProfile}
+            >
               <Text style={styles.shareBtnText}>Share Profile</Text>
             </TouchableOpacity>
           </View>

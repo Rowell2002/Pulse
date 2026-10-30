@@ -10,12 +10,16 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Linking,
+  Alert,
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
 import { GlassCard } from '../components/GlassCard';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../config/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -80,6 +84,28 @@ export default function AuthScreen() {
       setErrorMsg(err.message || 'Social sign in failed.');
     } finally {
       setSocialLoading(null);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const input = usernameOrEmail.trim();
+    if (!input || !input.includes('@')) {
+      Alert.alert(
+        'Reset Password',
+        'Please enter your registered email address in the username/email field first, then tap Forgot?'
+      );
+      return;
+    }
+    try {
+      if (auth) {
+        await sendPasswordResetEmail(auth, input);
+        Alert.alert(
+          'Password Reset Email Sent',
+          `A password reset link has been sent to ${input}. Please check your inbox.`
+        );
+      }
+    } catch (err: any) {
+      Alert.alert('Reset Failed', err.message || 'Unable to send password reset email.');
     }
   };
 
@@ -163,7 +189,7 @@ export default function AuthScreen() {
               <View style={styles.inputGroup}>
                 <View style={styles.labelRow}>
                   <Text style={styles.label}>PASSWORD</Text>
-                  <TouchableOpacity activeOpacity={0.8}>
+                  <TouchableOpacity activeOpacity={0.8} onPress={handleForgotPassword}>
                     <Text style={styles.forgotText}>Forgot?</Text>
                   </TouchableOpacity>
                 </View>
@@ -254,8 +280,19 @@ export default function AuthScreen() {
           {/* Footer Text */}
           <Text style={styles.footerText}>
             By joining, you agree to our{' '}
-            <Text style={styles.footerLink}>Terms of Service</Text> and{' '}
-            <Text style={styles.footerLink}>Privacy Policy</Text>.
+            <Text
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}
+            >
+              Terms of Use (EULA)
+            </Text>{' '}
+            and{' '}
+            <Text
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://driftcodes.com/privacy')}
+            >
+              Privacy Policy
+            </Text>.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

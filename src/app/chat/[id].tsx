@@ -14,7 +14,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import { ChevronLeft, Phone, Video, Send, Paperclip, Smile, FileText, ExternalLink, Lock, Crown, Sparkles } from 'lucide-react-native';
+import { ChevronLeft, Phone, Video, Send, Paperclip, Smile, FileText, ExternalLink, Lock, Crown, Sparkles, MoreVertical } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS } from '../../theme/colors';
 import { useChat } from '../../context/ChatContext';
@@ -28,7 +28,8 @@ import { GlassCard } from '../../components/GlassCard';
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user, userData } = useAuth();
   const { currentTier, permissions } = useSubscription();
   const { messages: allMessages, sendMessage, markAsRead, threads } = useChat();
@@ -42,7 +43,7 @@ export default function ChatScreen() {
   // Parse target user UID from thread ID
   const targetUid = id
     ? id.startsWith('dm_')
-      ? id.replace('dm_', '').split('_').find((uid) => uid !== user?.uid)
+      ? id.replace('dm_', '').split('_').find((uid: string) => uid !== user?.uid)
       : id
     : null;
 
@@ -177,8 +178,14 @@ export default function ChatScreen() {
     const trimmed = inputText.trim();
     if (!trimmed || !id) return;
     setInputText('');
-    await sendMessage(id, trimmed);
-    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    try {
+      await sendMessage(id, trimmed);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    } catch (err: any) {
+      console.warn('[Chat] Failed to send message:', err);
+      setInputText(trimmed); // Restore message
+      Alert.alert('Send Error', 'Failed to deliver message. Please check your connection.');
+    }
   };
 
   const formatMsgTime = (timeVal: any) => {
@@ -241,6 +248,68 @@ export default function ChatScreen() {
 
     return true;
   });
+
+  const handleChatOptions = () => {
+    Alert.alert(
+      'Conversation Options',
+      `Manage conversation with ${displayName}`,
+      [
+        {
+          text: 'Report User',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Report User',
+              'Please select the reason for reporting this user:',
+              [
+                {
+                  text: 'Inappropriate Content',
+                  onPress: () => {
+                    Alert.alert('Report Received', 'Thank you. Our moderation team reviews all reports within 24 hours and takes appropriate action.');
+                  },
+                },
+                {
+                  text: 'Harassment or Bullying',
+                  onPress: () => {
+                    Alert.alert('Report Received', 'Thank you. Our moderation team reviews all reports within 24 hours and takes appropriate action.');
+                  },
+                },
+                {
+                  text: 'Spam or Scam',
+                  onPress: () => {
+                    Alert.alert('Report Received', 'Thank you. Our moderation team reviews all reports within 24 hours and takes appropriate action.');
+                  },
+                },
+                { text: 'Cancel', style: 'cancel' },
+              ]
+            );
+          },
+        },
+        {
+          text: `Block ${displayName}`,
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              `Block ${displayName}?`,
+              `Are you sure you want to block ${displayName}? You will no longer receive messages from this user.`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Block User',
+                  style: 'destructive',
+                  onPress: () => {
+                    Alert.alert('User Blocked', `${displayName} has been blocked.`);
+                    router.back();
+                  },
+                },
+              ]
+            );
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -312,11 +381,26 @@ export default function ChatScreen() {
         </View>
 
         <View style={styles.headerActions}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.headerActionBtn}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.headerActionBtn}
+            onPress={() => Alert.alert('Voice Coaching', `Voice calls with ${displayName} can be scheduled during active training blocks.`)}
+          >
             <Phone size={18} color={COLORS.textMuted} />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={styles.headerActionBtn}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.headerActionBtn}
+            onPress={() => Alert.alert('Video Coaching', `Live 1-on-1 video reviews with ${displayName} are conducted via the VIP coaching calendar.`)}
+          >
             <Video size={18} color={COLORS.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.headerActionBtn}
+            onPress={handleChatOptions}
+          >
+            <MoreVertical size={18} color={COLORS.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>

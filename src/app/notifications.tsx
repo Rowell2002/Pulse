@@ -123,15 +123,18 @@ export default function NotificationsScreen() {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => router.back()}
-            style={styles.headerAvatarContainer}
+            style={styles.backButton}
           >
+            <ArrowLeft size={22} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <View style={styles.headerAvatarContainer}>
             <Image
               source={{
                 uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8F7KKuK_caaRGak9MQ_W2ILllheoVUN5wUopz5X-5ztRdMuoRU3d3S8eG_kceq3cZwU_wqJSgsTXLcpIWcBJImPuO3Dkvcxv5pHyMMJ_Hzixk_VVQUoOvUt1mmvhqoo9yZAS_mSAHFtZZeaRUBVAzQpb5ZVLFwDKpDTnV8DcSAky1aoBxP3eIumCVDrAccmEGlfWHqX4wlR4Q72NnRUrq7OKZ7_al81BNyjKLE2ILi_f3tV2M8riIDO1Q7up4DWOdbP1RndfCFnYY',
               }}
               style={styles.headerAvatar}
             />
-          </TouchableOpacity>
+          </View>
           <Text style={styles.brandTitle}>PULSE</Text>
         </View>
         <TouchableOpacity activeOpacity={0.8} style={styles.iconButton}>
@@ -293,6 +296,9 @@ const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  backButton: {
+    padding: 4,
   },
   headerAvatarContainer: {
     width: 32,

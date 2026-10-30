@@ -37,8 +37,13 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
         router.replace('/');
       }
     } else {
+      // Authenticated user: wait if profile data is still loading
+      if (!userData) {
+        return;
+      }
+
       // Authenticated user: check profile completeness
-      const isProfileIncomplete = !userData || !userData.selectedGoal;
+      const isProfileIncomplete = !userData.selectedGoal;
 
       if (isProfileIncomplete) {
         // Route to onboarding if not yet there
@@ -60,7 +65,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, userData, loading, segments]);
 
-  if (loading) {
+  if (loading || (user && !userData)) {
     return <SplashScreen />;
   }
 
