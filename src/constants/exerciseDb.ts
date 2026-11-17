@@ -37,8 +37,8 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Barbell', 'Power Rack'],
     intensity: 8.5,
     duration: '45 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB',
-    videoImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB',
+    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    videoImage: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -73,8 +73,8 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Dumbbells', 'Flat Bench'],
     intensity: 7.5,
     duration: '40 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn',
-    videoImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn',
+    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    videoImage: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -109,7 +109,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Barbell', 'Weight Plates'],
     intensity: 9.0,
     duration: '50 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -144,7 +144,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Kettlebell'],
     intensity: 7.8,
     duration: '30 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGI8XnqpxM0rZJwn03sD81iJi4hAn1fK45oMAWBrHzH58j05YAmwCc-1Umd7rcAX6bVu7tMnfTBPl4g4ULzXxHSgSTbATqHknXWBcJnq-KUsDbPi50mYsz01j2mZMsu6fOa-VSX-rcRcfe0QsGem43VPW7Y0p5PdTZEHKWdvzLzrUrgC34xU-JJNuxr1BiL5j08fAnXXiiKeIM8bVnTMk2-QvkjeZsahTO768eDjqmpwFKBNyaIY8S2v_CmP1CjFGWi4SlN145xH0B',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -179,7 +179,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Pull-Up Bar'],
     intensity: 8.0,
     duration: '35 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -214,7 +214,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Exercise Mat'],
     intensity: 6.0,
     duration: '20 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -249,7 +249,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Barbell', 'Rack'],
     intensity: 8.0,
     duration: '40 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB',
+    image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -284,7 +284,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Dumbbells'],
     intensity: 6.5,
     duration: '25 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGI8XnqpxM0rZJwn03sD81iJi4hAn1fK45oMAWBrHzH58j05YAmwCc-1Umd7rcAX6bVu7tMnfTBPl4g4ULzXxHSgSTbATqHknXWBcJnq-KUsDbPi50mYsz01j2mZMsu6fOa-VSX-rcRcfe0QsGem43VPW7Y0p5PdTZEHKWdvzLzrUrgC34xU-JJNuxr1BiL5j08fAnXXiiKeIM8bVnTMk2-QvkjeZsahTO768eDjqmpwFKBNyaIY8S2v_CmP1CjFGWi4SlN145xH0B',
+    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -319,7 +319,7 @@ export const EXERCISES: Exercise[] = [
     equipment: ['Mat'],
     intensity: 5.0,
     duration: '20 MIN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCuElD0ZoimuCj2EwugeFRYCQSelWolCFiNnF92LDFlNpGvCeKVW0D9ex5GmLvXAdlKVx5Ii1QrqhTm_EzJCBEfsk-KP_hej6le5wKqrx04D7-dM-BPVnSAeqPOKtggdTHPvUy_GGRtMnEpgPpVG7E9z9TnSezcA-MJETD8nyMbNbzxnlsTik7Q0tU1RZuVvsPHl9LlKOffOEAOAlPlTedsSACVboNdNKAd6JWmZGkSWZ7I79GJyN309RgAQBe-d8AfKMSo8XatMMYO',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
     steps: [
       {
         num: '01',
@@ -355,7 +355,7 @@ export const PROGRAMS: Program[] = [
     difficulty: 'Advanced',
     duration: '8 Weeks',
     focus: 'Hypertrophy Focus',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAViwHv8c8Oe9bsVKUgCHqIKO0shbrkkNdRJfxTIUuksRoxszVHF8tb7YaU1mEPLpSuYhOCmrVn2F56P3WjEMFxCfNRprbPMbYkB7I7f6v26fqIDWrDFja3ZXBSxbascsi2FV83ZqPClFeVuOpxqXVMTH0k3ZM5_pldFy3MraJUEGv7gzH2grAiRttD0pcDd_86bkayGapAJ4vVKN3pfo4LmC6ePChr97mkstRl4ysNMzlbZjgUTB-FuEekUHiFo8-GLIZYETwzBhAq',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     exercises: ['barbell-back-squat', 'dumbbell-chest-press', 'deadlift', 'overhead-press'],
   },
   {
@@ -367,7 +367,7 @@ export const PROGRAMS: Program[] = [
     focus: 'Full Body Kettlebell Workouts',
     progress: 45,
     weekText: 'Week 3 of 6',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGI8XnqpxM0rZJwn03sD81iJi4hAn1fK45oMAWBrHzH58j05YAmwCc-1Umd7rcAX6bVu7tMnfTBPl4g4ULzXxHSgSTbATqHknXWBcJnq-KUsDbPi50mYsz01j2mZMsu6fOa-VSX-rcRcfe0QsGem43VPW7Y0p5PdTZEHKWdvzLzrUrgC34xU-JJNuxr1BiL5j08fAnXXiiKeIM8bVnTMk2-QvkjeZsahTO768eDjqmpwFKBNyaIY8S2v_CmP1CjFGWi4SlN145xH0B',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
     exercises: ['kettlebell-swing', 'bicep-curl', 'plank'],
   },
   {
@@ -379,7 +379,7 @@ export const PROGRAMS: Program[] = [
     focus: 'Functional Conditioning',
     progress: 15,
     weekText: 'Week 1 of 4',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs',
+    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     exercises: ['plank', 'pull-up', 'bicep-curl', 'yoga-downward-dog'],
   }
 ];

@@ -26,9 +26,9 @@ const { width } = Dimensions.get('window');
 
 const MOCK_LATEST_PHOTOS = {
   date: '2026-05-18',
-  front: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAYhKoiAselBiCxRBlzyYMw8xWps4s8qVztGHesADBVYrQk1g5ezkzbi4LjSODMnrMs7yWAWbrVv2jDRH1xVHRXCyb4fokO1k7MR37FiVKEy6wb3gwNawbNjEo8V674fDzvOYaqmqDBEvjM1Tac8mptP7lO1tcKzAhb4xYPmfSt_YeD-oely4V3Ehf-qhPgUh31t6zlxbg_TmyQOy552gi2g-Grdlinw_hS_aMfkFYGfoJiRaMI0QMmyXaJhcAXQvQKbb4VGrDamVbM',
-  side: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjJrCKDiFz78HKuK8zbLpR2UXF6wppruzUsLGo8CE1HR8m04G6JKeYPp9cNJRz6oCzailuMycfgP-ReOIk0F3vYe86fFqhTDi58uP3OA0qP--skBmMNAL24UPrNPArWtRXN-SRdkB5-__GMon1teys8JBk2NPjd3SuU4OMs9DwLpZkzxkrD-Xo6rV84L22Mr_2J7JmXIVlIt8SREAbEly6uNR7wyDO0W7fvO1FkbaEp31vYs18wWPlWzihENSDVhOwYs2XmZaNjUbu',
-  back: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUv18p0HP1nbaX8Zd4Sg5TnYmfIvejB-9wUNq6acP6TNcWTu_gx1SE0vKK5Gm89GnxzW0ineEZhsDmYEqBywq35LD0q2rYM4uE80gcPLpM-bsgimSFUfzdv1Qf9XddZsOfztWw33vCpgl2TRLBPNiB0EVpiNOSWU8mXgtsUV9yNyYQ3dSU8e_6dUDaI9x9Ug55ieDU4pES7NzX8PyyxyqCjrVy3NiVuT2WXiUEQe3G_UjR7RMoYYPQNYaYaJyIVzNyrJPazrGt2Jp_',
+  front: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+  side: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80',
+  back: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80',
 };
 
 export default function DashboardScreen() {
@@ -315,7 +315,7 @@ export default function DashboardScreen() {
       >
         <Image
           source={{
-            uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC8TfmuAvQl-2QPMrNRHkhoZY4tDMzga_Nm-jK6VLmjpw4iHV1JRIEqkuC6iPloOr88D6l0SKgnzIhLy9ZKsRF7maC5AwC0Rq5ud0FZ4imgQfLjLbBZtczcMU7R1t6K1Tw2jb7EJgLiZnA76T5CW9Xuj5XpaE5xe1n44NDtsVO_wCwQ-LuhLPzbuKpQcEE1yE15LKVOihomPDAvQfLczmdtLrtkbC4RheP8DOF-mlgNBWoFaycfbp10m1HQYS93ksvJzd_YqltKxESB',
+            uri: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
           }}
           style={styles.bentoImage as any}
         />
@@ -560,7 +560,7 @@ export default function DashboardScreen() {
             </View>
             <Image
               source={{
-                uri: trainerData?.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDOGAaYR94dkcvQEhj7j13nYRIPMjGzrxjFiuIOpsxvcrBnHvdJhpkRFUVnOd8ULMub1aMaJI8ekm7ra6MaIpsjWFuHxmGEUhLgGEZiiP5gxbDU17ZpNbvxCKkLFFaQ_541wA0NZzQD42ZnU4Og1KsVnJcORJ-0IGb2yiA_zRXmGPDC-zaEYImJIA3ieZTjYDgPyQVonJNGMz0uiUlGQxBq1OMiVfZObsCxavyV9SwfrMakRGA1cKLg5kIxKz6x9_-0eYp1dcyr1yiT',
+                uri: trainerData?.avatar || 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
               }}
               style={styles.coachAvatar as any}
             />

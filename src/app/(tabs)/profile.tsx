@@ -135,12 +135,12 @@ export default function ProfileScreen() {
   };
 
   const journeyPosts = [
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAYhKoiAselBiCxRBlzyYMw8xWps4s8qVztGHesADBVYrQk1g5ezkzbi4LjSODMnrMs7yWAWbrVv2jDRH1xVHRXCyb4fokO1k7MR37FiVKEy6wb3gwNawbNjEo8V674fDzvOYaqmqDBEvjM1Tac8mptP7lO1tcKzAhb4xYPmfSt_YeD-oely4V3Ehf-qhPgUh31t6zlxbg_TmyQOy552gi2g-Grdlinw_hS_aMfkFYGfoJiRaMI0QMmyXaJhcAXQvQKbb4VGrDamVbM',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDjJrCKDiFz78HKuK8zbLpR2UXF6wppruzUsLGo8CE1HR8m04G6JKeYPp9cNJRz6oCzailuMycfgP-ReOIk0F3vYe86fFqhTDi58uP3OA0qP--skBmMNAL24UPrNPArWtRXN-SRdkB5-__GMon1teys8JBk2NPjd3SuU4OMs9DwLpZkzxkrD-Xo6rV84L22Mr_2J7JmXIVlIt8SREAbEly6uNR7wyDO0W7fvO1FkbaEp31vYs18wWPlWzihENSDVhOwYs2XmZaNjUbu',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAUv18p0HP1nbaX8Zd4Sg5TnYmfIvejB-9wUNq6acP6TNcWTu_gx1SE0vKK5Gm89GnxzW0ineEZhsDmYEqBywq35LD0q2rYM4uE80gcPLpM-bsgimSFUfzdv1Qf9XddZsOfztWw33vCpgl2TRLBPNiB0EVpiNOSWU8mXgtsUV9yNyYQ3dSU8e_6dUDaI9x9Ug55ieDU4pES7NzX8PyyxyqCjrVy3NiVuT2WXiUEQe3G_UjR7RMoYYPQNYaYaJyIVzNyrJPazrGt2Jp_',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDXxXkYBF3Q4G56I8Ls6obFGOcBgkhpi6xjYg4LoaEAYOqVQs2SD5LJJzWpYMeCkDk58dDC-aI7tj6bPyLNxf8tjl00oZrvGvIMFYRa2Xb0UK9T2G9JszDPwW87ZE2ELZGkqsfmVuQN4c0wf5UoFC9-shOJKCWtnayz_aqqvUbnPnsLYeoOvy6eJQOVKCMRz8ZbSzvnhnse_d7aLmtL2eNkZqrJ3TUY6D0hTOAEMfbEMpm22z2lS9FWuxFNPM-muYFVwainpEK0-4rj',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAM7GArMidziW_B5OPNyun-BWa5w0LkhKVXCKqURZybpzPljsKLdjwgNJRvOrwBkZNdLBC7BEm7GFNUcAY-Y5q-LEiHNbjzlMVgRb1mCDfSXCoOrbEE99Au6R5Q1WQv7FKy_6vAmbwrH_F9uQsdrl1H1KJoQXNZkwCnadodGl3n4bSdBETqLFNUnv77BM9tMhbZBBVLcD3S357AlX0dJYBktXV43w4hgMUXPI9KCY-cllW4A9aZrSDtub4snG5c3KUw-TBZZ_Rq8CGp',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuB8OvuV7JUz2PjUEzxl0P7rsUcnXZkhyg1Lhw1XJ_5zCG07W60MB8ge6503HflFTM-JtOLGLTIvF6fMRZ7zTh09X5iV1EhAocfpADPm5q4Cl15RhbrevXUnLB-OeN6zayg0BrfbuFAPoX-ehrmsHnIWkQIsWIwiFvQf_Vf5YKqxXUcIECD34C1DzzBsIgUKyn0luuv15YcyL58iIk9_4EO3gbwlSZ_T98rl4j-wDh2uI7fGUj0AeDFlGN2ZjMTkWmCJ70rNn1-cVzVB',
+    'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80',
   ];
 
   return (
@@ -183,7 +183,7 @@ export default function ProfileScreen() {
               <View style={styles.imageClip}>
                 <Image
                   source={{
-                    uri: userData?.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBPLec3e4wQZMTx7tJorZXjjXzORSwVZWYl3y6GCF7eu1mjUrk5QMlPazqaXlZIg18YGqkyIwI2KP_bqGzRtz17XGo6ZflvUS_EzNV3B6NvvyqjfNUKPhSVwcFU5jRkw_fJwkjhL4PeiP8WBV4A9umQRcKxZOIBPp6WHKm7p5Oj6Qfrz7r8PganYgXnXuICVP8l7uYx_JhF5A8VzokaMBjFyE3DXDDd0wZGjj1ds2oieWkK9oxr04-6ScXH2VpeYGjUoLgv8UiGUdJI',
+                    uri: userData?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
                   }}
                   style={styles.avatar}
                 />
