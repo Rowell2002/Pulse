@@ -73,7 +73,7 @@ const SEED_USERS = [
     username: 'coach_sarah',
     email: 'sarah.trainer@pulse.com',
     bio: 'Certified Strength & Conditioning Coach. Kettlebell enthusiast.',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDL40S2aGC_J6AYPUSZ-IvFLMzAJJ8jjiyg38PCvhPwsr8ZUuPJDROayW0iNcuVZEZoMAfJVd0pKkGgZN0sJGCRAQvZoALlD8dQ1aljmR1m_jU1ZFlnYsp-huMlPnb7cqMP-La1W9U5vo38JCQPVH9L7vRcLjB3HYN0vMnlOt8UdduR4B8_X-9tKt9-MBYmCtSlfv0gYQmCvNuVU1Q42TTOKvSqa4lw7R9ONZ7PDeg3FBvCs9gMJ9N2wQFXlwOUeuJcQhUmlkWRx1c5',
+    avatar: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
     settings: { pushNotifications: true, emailReports: true, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
   },
@@ -83,7 +83,7 @@ const SEED_USERS = [
     username: 'jwilson_lifts',
     email: 'jwilson@pulse.com',
     bio: 'Powerlifter. Bench: 315lb, Squat: 495lb, Deadlift: 550lb. LFG!',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2WT75WonBAgxNvPK93Obhl0mrljui45Ba1ZRoJm6eKiPtFVhULwbczmFD8VFHn3wyS0zVXEQdyoJua6auzYQZF-mYWLCLMvuXb3xEPeoC5e4S1UzuQv2XRyhxIQsg-h3rxNwfmiCTlSfW2dsImNeNOF-_mJpR_MQG4qNBANHJ8eK4gpFA-OMP6CJ5Ul4A9tKRGT-g3K-L12PIRlwZRHCe8DGJ1T16jv9xllD0Wo4HI1y9DZ_rIqZHrdPTdqT9LnsqG3oQ2G8PNA-M',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     settings: { pushNotifications: true, emailReports: false, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
   },
@@ -98,7 +98,7 @@ const SEED_USERS = [
   },
   {
     uid: 'emma-watson',
-    name: 'EMMA WATSON',
+    name: 'EMMA TAYLOR',
     username: 'emma_runs',
     email: 'emma@pulse.com',
     bio: 'Marathoner in training. Yoga and mobility instructor.',
@@ -108,30 +108,30 @@ const SEED_USERS = [
   },
   {
     uid: 'david-beckham',
-    name: 'DAVID BECKHAM',
-    username: 'david_beckham',
-    email: 'beckham@pulse.com',
-    bio: 'Footballer. Fitness, style, and conditioning.',
+    name: 'DANIEL BROOKS',
+    username: 'daniel_brooks',
+    email: 'daniel@pulse.com',
+    bio: 'Athletic conditioning, agility, and functional fitness.',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200',
     settings: { pushNotifications: false, emailReports: false, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
   },
   {
     uid: 'chris-hemsworth',
-    name: 'CHRIS HEMSWORTH',
-    username: 'thor_fitness',
+    name: 'CHRIS MORGAN',
+    username: 'chris_fitness',
     email: 'chris@pulse.com',
-    bio: 'Thor conditioning programs. High intensity functional training.',
+    bio: 'Functional strength conditioning and power progression.',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
     settings: { pushNotifications: true, emailReports: true, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
   },
   {
     uid: 'serena-williams',
-    name: 'SERENA WILLIAMS',
-    username: 'serena_w',
-    email: 'serena@pulse.com',
-    bio: '23 Grand Slams. Champion mentality. Hard work pays off.',
+    name: 'SAMANTHA REED',
+    username: 'samantha_r',
+    email: 'samantha@pulse.com',
+    bio: 'Speed, endurance, and championship athletic conditioning.',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
     settings: { pushNotifications: true, emailReports: true, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
@@ -142,7 +142,7 @@ const SEED_USERS = [
     username: 'marcus_chen',
     email: 'marcus.chen@pulse.com',
     bio: 'Athlete • Strength Team',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpD2kh56DTxuXNZru_ypU6fp1vhMPBe7HmLtF-5DYPEZFG-hvzHHSircLkY_dtN-E3gZYybE0AzSIOK_pnQRbN1tNGY4MOlbpKDtIGssJVjtrN6e7BRKVBk9snjXG85eqLljffRMouUUUtBlAglVWF2_4VRjlDsmvMgP4Lujb0_qcPZdKtsT28MFX-EHuIaxCN4RCxiwvCs5PtIoNeFpVwI5S-ThqmMsB5JoeWgp6b9vjql6li4CAl2HDihZSJn615vXrXmy7YBH-k',
+    avatar: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
     settings: { pushNotifications: true, emailReports: true, darkMode: true, profileVisibility: true },
     createdAt: new Date().toISOString()
   }

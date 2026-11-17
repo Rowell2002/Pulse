@@ -39,7 +39,7 @@ export default function WorkoutsScreen() {
       exercises: [
         { id: 'dumbbell-chest-press', name: 'Dumbbell Chest Press', sets: 4, reps: 10, weight: 20 },
       ],
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn'
+      image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80'
     },
     {
       name: 'Back Workout',
@@ -47,14 +47,14 @@ export default function WorkoutsScreen() {
         { id: 'pull-up', name: 'Bodyweight Pull-Up', sets: 4, reps: 8, weight: 0 },
         { id: 'deadlift', name: 'Conventional Barbell Deadlift', sets: 3, reps: 5, weight: 100 }
       ],
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs'
+      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'
     },
     {
       name: 'Legs Workout',
       exercises: [
         { id: 'barbell-back-squat', name: 'Barbell Back Squat', sets: 4, reps: 8, weight: 80 },
       ],
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB'
+      image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80'
     }
   ];
 
@@ -90,15 +90,15 @@ export default function WorkoutsScreen() {
   const getWorkoutImage = (name: string) => {
     const lowercaseName = name.toLowerCase();
     if (lowercaseName.includes('chest') || lowercaseName.includes('bench') || lowercaseName.includes('press')) {
-      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2NRdLXej0zuPG0oLQpBosq0ZuMCZbARsVfvi-KBPzLRYUrIbu38ndJfUCya-axwxE3-pqmZQdzZeqs8VVWff64bDpqBxumIVKc6Kkmgs7lGVxvibdUR6T8HUPwWvlMtoYIH8NMUKed5xicesmDjB9yCA9lybIWMtc7Xba753T09uovn93KIx14d_FdKXTd7ozZaib4EsWgtUyIXYcRnIP9wyG0hLS4kwyyNOwV7izlyY33TBlrRGDeQ6juZYa37d_eGnt0C5ZAVvn';
+      return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80';
     }
     if (lowercaseName.includes('back') || lowercaseName.includes('deadlift') || lowercaseName.includes('pull')) {
-      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKahpWUjryOS5P0xCh39QVdCKwCavtHgSdLUu6iAyU1LK3Sfg_cMLYXqafEiVRhVFEcHiD63xwSGeL3ijGtrixb5Ah1BMYDj3p41T2y41ep6yhB9wGLJHbxDl46YQnTNCDYTx45FccNuo1KllMiOP0nkISIIU51uo6CY2JPPGW7VCRuY3lEgyA43OJWCZXHX0OzCcoRHpXdEMsCbOmGSMZO9qbEM9xd0ZrBlMl790chJDgTEzKro-3xK522y7zWjfYq4DJeXv_ZmTs';
+      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
     }
     if (lowercaseName.includes('leg') || lowercaseName.includes('squat') || lowercaseName.includes('quad')) {
-      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn3kGdXbGLF6PwfeuEzV1XIud4h-DRY6trZVw5Z5PuBynLqI8Sixutg8gyninV-P_ytR7d8rfLORc91Ad9ePWV1Cfi34jJYhfH5Fzp95p2mjrxvFSnGzhiNPstoE_8E39j6Q7IOGWNIQeds-Zkb-S0XOv50-yp-p36VKdbb6GQo2ji-HT6elp4_h3ZrP7YQyyIpp8chwkgmmffc4CkrzFWFwtVN2cfuMfPq5OSMDicptSJ2RlqTjzg_8ept6OOLlPNLU8WfVqjkaFB';
+      return 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80';
     }
-    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuAViwHv8c8Oe9bsVKUgCHqIKO0shbrkkNdRJfxTIUuksRoxszVHF8tb7YaU1mEPLpSuYhOCmrVn2F56P3WjEMFxCfNRprbPMbYkB7I7f6v26fqIDWrDFja3ZXBSxbascsi2FV83ZqPClFeVuOpxqXVMTH0k3ZM5_pldFy3MraJUEGv7gzH2grAiRttD0pcDd_86bkayGapAJ4vVKN3pfo4LmC6ePChr97mkstRl4ysNMzlbZjgUTB-FuEekUHiFo8-GLIZYETwzBhAq';
+    return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80';
   };
 
   // Group assigned exercises by workout name
@@ -126,19 +126,19 @@ export default function WorkoutsScreen() {
   const goals = [
     {
       title: 'Fat Loss',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDepfHBAIVTEb9XQhwouzITabgE2LMTQYTVmDgDgo5ytN9Xz83D2pzq_0oJEnR7QM32iZv2I7r5RvDRBwOk8i7-zpq-FXL1PTeRGFj7Y1BBhGUXB4bTHIV8gsSor2doGIi-yBKam8VZj5n5DRPd6x0kgs7-ZCboM44pvOxeYyRLD-pDEkTmbVYSU8OGAP9PTaDgEDndcBwMQ3pBBQ0Tail51qcXvAWgFrqqulWXVoc__7BwH_H7oKH6jy_GGXtpzlsaXMlOdenjCpZd',
+      image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
     },
     {
       title: 'Muscle Gain',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBOCrUuP5D22u-JOkIavj437qo9W5ZfX9GQNuF0GF0XvI2M22CPiukFvLAGUH_MgEi20Oh2gyjGoWEMWKsbL0MsbwzrixbJO1XOfd7H3o_norCo41Rg7Jl2hhdWos37Bv_OcsHEv7YZ9_7jsTfj6wL2oi79ZrDAKqjZy9Smo07Ib8FdWZKPzqmQv2wP_vkp-x76w-lFD2EhHs55xIscMb7wXTq5v659uKnQinDb5zGKNzt-c1vpCP1h4R30VBTsGyJzx0V9jLS5wAN8',
+      image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
     },
     {
       title: 'Endurance',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9aa6H82jFrhlDrT8kKCXc6W4s1UsB48NjLJFNsCthjYQ3v69C0UgrL2DbzMzIYklxu99v9uOz-LehSMI4UOAG9fnizuYr1NY4M3kknzhpUENkGL7RM7-GzQgynckloqo-vLkG8XCnZf-WQtc7_fDLPVJKd1Xt8BsCeXtETsjDvVlEPoxRSKqwn3rIl6ypiDJNB2apz1gInfFxQGLAF_R0ev2Yv_j3Xm6tS1hZXI9yHYH4lu4qA2JGRL-uteqGDQ3hHSOcpCVD_48e',
+      image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80',
     },
     {
       title: 'Flexibility',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCuElD0ZoimuCj2EwugeFRYCQSelWolCFiNnF92LDFlNpGvCeKVW0D9ex5GmLvXAdlKVx5Ii1QrqhTm_EzJCBEfsk-KP_hej6le5wKqrx04D7-dM-BPVnSAeqPOKtggdTHPvUy_GGRtMnEpgPpVG7E9z9TnSezcA-MJETD8nyMbNbzxnlsTik7Q0tU1RZuVvsPHl9LlKOffOEAOAlPlTedsSACVboNdNKAd6JWmZGkSWZ7I79GJyN309RgAQBe-d8AfKMSo8XatMMYO',
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
     },
   ];
 

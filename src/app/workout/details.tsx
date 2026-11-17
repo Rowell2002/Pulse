@@ -59,7 +59,7 @@ export default function ExerciseDetailsScreen() {
           <View style={styles.headerAvatarContainer}>
             <Image
               source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA1EDkPj9tkBRafTo3lCoYrET_mI_k0CB9hDczuK6VVd85YpEOVjZ3h2A9smiqp_trMTr698fNL5-CYcKpog0txAA7-zBrwlBBwL7bD8tGYxjdJY02QeVCGFbz8W021jpTyC85DOF9enooC1VCZbjFhwbvNrGeBBJuSnUOcXKXGa98j1JUfhOImwlR5xvbw33TNXjGnDMBY5gYT2UTStb8POsgKOJI7OU9VbeBvf_uxPB6vL8GxsavBVHRgg3N2XFKd4_mEaTuobXpk',
+                uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
               }}
               style={styles.headerAvatar}
             />

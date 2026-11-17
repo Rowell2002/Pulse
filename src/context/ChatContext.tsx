@@ -196,7 +196,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             participants: [user.uid, 'coach-sarah'],
             name: 'Coach Sarah',
             subtitle: 'Personal Trainer • Online',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDL40S2aGC_J6AYPUSZ-IvFLMzAJJ8jjiyg38PCvhPwsr8ZUuPJDROayW0iNcuVZEZoMAfJVd0pKkGgZN0sJGCRAQvZoALlD8dQ1aljmR1m_jU1ZFlnYsp-huMlPnb7cqMP-La1W9U5vo38JCQPVH9L7vRcLjB3HYN0vMnlOt8UdduR4B8_X-9tKt9-MBYmCtSlfv0gYQmCvNuVU1Q42TTOKvSqa4lw7R9ONZ7PDeg3FBvCs9gMJ9N2wQFXlwOUeuJcQhUmlkWRx1c5',
+            avatar: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
             lastMessage: 'Your macros look perfect for today! Keep it up, you\'re crushing it ⚡️',
             lastMessageTime: new Date(Date.now() - 12 * 60000),
             unreadCount: 0,

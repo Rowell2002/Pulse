@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Pulse",
+    "name": "Pulse: Workout & Coaching",
     "slug": "Pulse",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +11,7 @@
       "bundleIdentifier": "com.chethanarowell.pulse",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
+        "CFBundleDisplayName": "Pulse",
         "NSMotionUsageDescription": "This app uses motion data to calculate your daily step counts.",
         "NSCameraUsageDescription": "This app requires access to your camera to take progress photos.",
         "NSPhotoLibraryUsageDescription": "This app requires access to your photo library to select progress photos.",

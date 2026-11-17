@@ -59,7 +59,7 @@ export default function WorkoutSummaryScreen() {
           <View style={styles.headerAvatarContainer}>
             <Image
               source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSu3Sf4cxST91JrfyB_JAmwNIe3ztRVD74XakGLqleVVG9e7aPySXW_qoMpE1hv48jg7WcaH6VJll1qGUq6YygDclF2XOufsC13Ry4GVpYgXUHr95PfsQsS4hCY8xWyhJQN6HOKKABBPyJJlvS2bKWsOSS_z6y1aaDjLtgu9HBAjYVAZV72OSnpioa2k-cGXiXrAX1vTVsB0GGujbqUOVC8nlf3jby3Gi4KOwaDQqnANBtTzPf-Q-9sG0tmr1iJ5g5vgDgaJqb8yvh',
+                uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
               }}
               style={styles.headerAvatar}
             />

@@ -46,7 +46,7 @@ export const TopAppBar: React.FC = () => {
         >
           <Image
             source={{
-              uri: userData?.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBPLec3e4wQZMTx7tJorZXjjXzORSwVZWYl3y6GCF7eu1mjUrk5QMlPazqaXlZIg18YGqkyIwI2KP_bqGzRtz17XGo6ZflvUS_EzNV3B6NvvyqjfNUKPhSVwcFU5jRkw_fJwkjhL4PeiP8WBV4A9umQRcKxZOIBPp6WHKm7p5Oj6Qfrz7r8PganYgXnXuICVP8l7uYx_JhF5A8VzokaMBjFyE3DXDDd0wZGjj1ds2oieWkK9oxr04-6ScXH2VpeYGjUoLgv8UiGUdJI',
+              uri: userData?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
             }}
             style={styles.avatar}
           />

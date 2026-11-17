@@ -46,7 +46,7 @@ export default function CommunityScreen() {
         name: 'Marcus Chen',
         username: 'marcus_chen',
         bio: 'Athlete • Strength Team',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpD2kh56DTxuXNZru_ypU6fp1vhMPBe7HmLtF-5DYPEZFG-hvzHHSircLkY_dtN-E3gZYybE0AzSIOK_pnQRbN1tNGY4MOlbpKDtIGssJVjtrN6e7BRKVBk9snjXG85eqLljffRMouUUUtBlAglVWF2_4VRjlDsmvMgP4Lujb0_qcPZdKtsT28MFX-EHuIaxCN4RCxiwvCs5PtIoNeFpVwI5S-ThqmMsB5JoeWgp6b9vjql6li4CAl2HDihZSJn615vXrXmy7YBH-k'
+        avatar: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80'
       };
       const chatId = await startChatWithUser(targetUser);
       router.push(`/chat/${chatId}` as any);
@@ -237,7 +237,7 @@ export default function CommunityScreen() {
                 <View style={styles.postHeader}>
                   <Image
                     source={{
-                      uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDpD2kh56DTxuXNZru_ypU6fp1vhMPBe7HmLtF-5DYPEZFG-hvzHHSircLkY_dtN-E3gZYybE0AzSIOK_pnQRbN1tNGY4MOlbpKDtIGssJVjtrN6e7BRKVBk9snjXG85eqLljffRMouUUUtBlAglVWF2_4VRjlDsmvMgP4Lujb0_qcPZdKtsT28MFX-EHuIaxCN4RCxiwvCs5PtIoNeFpVwI5S-ThqmMsB5JoeWgp6b9vjql6li4CAl2HDihZSJn615vXrXmy7YBH-k',
+                      uri: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
                     }}
                     style={styles.avatar}
                   />
@@ -267,7 +267,7 @@ export default function CommunityScreen() {
                 <View style={styles.postImageWrapper}>
                   <Image
                     source={{
-                      uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCHmKv3PZkU3W8xtr6c9tmbTBbBIgeoWLPAtjpGBgVPczsCDuoi2zCSsBfl2QlPD0_RBMFUFD-n0h-NY-EEoiLu1Eie3NWb_fu7r31ZXMGpDkPsu1VUlwCItd9a2Y3f7I-Lm8qXO0HlneympiBGJqmaw1XSSgKHKDCFx1D0mqDUKqUtAhxKCU50lriZSmPTVGC740plMexWJbDnWX3guDdYfQGwYwyleZxmXuEA3NUKnKqJC4Hfipm7yjG22AEiBjuMxuIXeR_KxUqJ',
+                      uri: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
                     }}
                     style={styles.postImage}
                   />

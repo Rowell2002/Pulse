@@ -399,7 +399,7 @@ export default function SettingsScreen() {
 
         {/* Version Footer */}
         <Text style={styles.footerText}>
-          PULSE v1.0.0 • Google Labs Stitch SDK
+          PULSE v1.0.0 • DriftCodes Inc.
         </Text>
       </ScrollView>
     </SafeAreaView>

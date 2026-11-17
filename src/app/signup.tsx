@@ -111,7 +111,7 @@ export default function SignUpScreen() {
   return (
     <ImageBackground
       source={{
-        uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA00ZWJemwkcwEC9YyiENlgJX1rzDQ5FIpyVzHywILR4go66Ht20YbX1YlKZJ8oZYWCAkFEMKhO5HoW3n7wt46FQxMGmWmABkeQ0HLAQeJiu6YwFcqHipOw4mxzVQvliOdgb2sDheYaq6yqiaHS4kXM4C5CXHpy-vwIgd-sApLs40JYLQlxSYBoYj7v4uELt-ffbWnrAamAG4enWTRzsT9F9MheGsuOFR4bH0hFhEwheezxf1NCrcJUZXthxUtHis0jj2YWAkWsZANl',
+        uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
       }}
       style={styles.backgroundImage}
       resizeMode="cover"

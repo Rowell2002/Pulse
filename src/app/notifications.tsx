@@ -130,7 +130,7 @@ export default function NotificationsScreen() {
           <View style={styles.headerAvatarContainer}>
             <Image
               source={{
-                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8F7KKuK_caaRGak9MQ_W2ILllheoVUN5wUopz5X-5ztRdMuoRU3d3S8eG_kceq3cZwU_wqJSgsTXLcpIWcBJImPuO3Dkvcxv5pHyMMJ_Hzixk_VVQUoOvUt1mmvhqoo9yZAS_mSAHFtZZeaRUBVAzQpb5ZVLFwDKpDTnV8DcSAky1aoBxP3eIumCVDrAccmEGlfWHqX4wlR4Q72NnRUrq7OKZ7_al81BNyjKLE2ILi_f3tV2M8riIDO1Q7up4DWOdbP1RndfCFnYY',
+                uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
               }}
               style={styles.headerAvatar}
             />
