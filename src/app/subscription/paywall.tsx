@@ -103,13 +103,13 @@ export default function PaywallScreen() {
       const res = await applyPromoCode(code);
       if (res.success) {
         Alert.alert(
-          '🎉 4-Month Free Access Unlocked!',
-          'Promo code PULSE4FREE was applied successfully! You have 4 months of free Pulse access.',
-          [{ text: 'Great!', onPress: handleDismiss }]
+          '🎉 Promo Code Applied!',
+          'Your promotional code has been applied successfully. Enjoy your full access!',
+          [{ text: 'Continue', onPress: handleDismiss }]
         );
         setPromoCodeInput('');
       } else {
-        Alert.alert('Promo Code Notice', res.error || 'Invalid promo code. Use PULSE4FREE for 4 months free.');
+        Alert.alert('Promo Code Notice', res.error || 'Invalid promo code. Please check the code and try again.');
       }
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to apply promo code.');
@@ -230,7 +230,7 @@ export default function PaywallScreen() {
                 <Sparkles size={20} color={colors.primary} />
               </View>
               <View style={styles.trialTextWrapper}>
-                <Text style={styles.trialBannerTitle}>4-Month Free Access Active (PULSE4FREE)</Text>
+                <Text style={styles.trialBannerTitle}>Promo Access Active</Text>
                 <Text style={styles.trialBannerSubtitle}>
                   You have <Text style={styles.highlightText}>{daysLeftInTrial} days remaining</Text> in your promo period.
                 </Text>
@@ -244,12 +244,12 @@ export default function PaywallScreen() {
               <Text style={styles.promoTitle}>Have a Promo Code?</Text>
             </View>
             <Text style={styles.promoSubtitle}>
-              Apply code <Text style={styles.promoHighlight}>PULSE4FREE</Text> to get 4 months completely free.
+              Enter your promotional access code below.
             </Text>
             <View style={styles.promoInputRow}>
               <TextInput
                 style={styles.promoInput}
-                placeholder="Enter PULSE4FREE"
+                placeholder="Enter promo code"
                 placeholderTextColor={colors.textMuted}
                 value={promoCodeInput}
                 onChangeText={setPromoCodeInput}

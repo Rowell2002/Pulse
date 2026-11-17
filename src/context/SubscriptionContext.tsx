@@ -111,7 +111,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return { success: false, error: 'Invalid promo code. Please enter a valid code.' };
     }
     if (subscription?.promoCode === 'PULSE4FREE' && subscription?.status === 'trialing' && !isTrialExpired) {
-      return { success: false, error: 'Promo code PULSE4FREE is already active on this account.' };
+      return { success: false, error: 'This promo code is already active on this account.' };
     }
 
     try {
